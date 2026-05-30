@@ -167,6 +167,12 @@ class EntryPoint():
             except ImportError:
                 ErrorsWrapper.addError(name, version)
         
+        # PySide6 check
+        def pyside6Import():
+            from PySide6 import __version__ as pyside6Version
+            return pyside6Version
+        checkPackage(pyside6Import, "PySide6", (6, 11, 1))
+
         # mergedeep check
         def mergedeepImport():
             from mergedeep import __version__ as mergedeepVersion
