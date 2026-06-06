@@ -1,9 +1,9 @@
 from CustomProcessing import Custom
-import Utility as ut
-from Sheet import SheetExtractor
+import TextureLibs.TextureUtility as ut
+from TextureLibs.Sheet import SheetExtractor
 from CodeLibs.Path import Path
-import Global
-import Read as rd
+import TextureLibs.Global as Global
+import TextureLibs.Read as rd
 
 class map_icons(Custom.Function):
     def createImage(self):

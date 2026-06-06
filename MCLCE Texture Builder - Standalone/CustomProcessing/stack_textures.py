@@ -1,10 +1,10 @@
 from CustomProcessing import Custom
-import Global
-import Utility as ut
+import TextureLibs.Global as Global
+import TextureLibs.TextureUtility as ut
 import os
-import Read as rd
+import TextureLibs.Read as rd
 from CodeLibs.Path import Path
-from Sheet import SheetExtractor
+from TextureLibs.Sheet import SheetExtractor
 
 class stack_textures(Custom.Function):
     def createImage(self, args):

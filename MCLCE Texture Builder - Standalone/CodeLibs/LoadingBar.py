@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from sys import exit
-import Global
+import TextureLibs.Global as Global
 from . import Logger as log
 from CodeLibs.Logger import print
 

@@ -2,7 +2,7 @@ from CodeLibs import Logger as log
 from CodeLibs.Logger import print
 import random
 from typing import Union
-from Utility import test
+from TextureLibs.TextureUtility import test
 from copy import deepcopy
 import warnings
 

@@ -1,7 +1,7 @@
 # runs input checks for running Internal
 
-import Internal
-import Global
+import TextureLibs.Internal as Internal
+import TextureLibs.Global as Global
 import os
 from CodeLibs import JsonHandler
 from CodeLibs.Path import Path

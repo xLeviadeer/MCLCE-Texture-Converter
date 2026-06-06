@@ -1,8 +1,8 @@
 from CustomProcessing import Custom
-import Utility as ut
-import Read as rd
+import TextureLibs.TextureUtility as ut
+import TextureLibs.Read as rd
 from CodeLibs.Path import Path
-import Global
+import TextureLibs.Global as Global
 
 class banner__pattern(Custom.Function):
     def createImage(self):

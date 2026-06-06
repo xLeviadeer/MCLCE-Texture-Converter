@@ -1,6 +1,6 @@
 from CustomProcessing import Custom
-import Utility as ut
-import Read as rd
+import TextureLibs.TextureUtility as ut
+import TextureLibs.Read as rd
 
 class tunnel(Custom.Function):
     def createImage(self):        

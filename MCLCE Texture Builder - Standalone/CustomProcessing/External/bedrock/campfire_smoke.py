@@ -1,8 +1,8 @@
 from CustomProcessing import Custom
 from CodeLibs.Path import Path
-from Sheet import SheetExtractor
-import Utility as ut
-import Read as rd
+from TextureLibs.Sheet import SheetExtractor
+import TextureLibs.TextureUtility as ut
+import TextureLibs.Read as rd
 
 class campfire_smoke(Custom.Function):
     def createImage(self):

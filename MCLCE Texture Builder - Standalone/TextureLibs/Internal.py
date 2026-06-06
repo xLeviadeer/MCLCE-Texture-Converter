@@ -1,16 +1,16 @@
 # library of building functions for back-end libraries
 
-from SizingImage import SizingImage as Image
+from TextureLibs.SizingImage import SizingImage as Image
 import os
 import shutil
 import subprocess
 from CodeLibs import JsonHandler
-import Global
-import SupportedTypes
+import TextureLibs.Global as Global
+import TextureLibs.SupportedTypes as SupportedTypes
 from zipfile import ZipFile
-from Utility import singularSizeOnTexSheet
-import Utility as ut
-import Read as rd
+from TextureLibs.TextureUtility import singularSizeOnTexSheet
+import TextureLibs.TextureUtility as ut
+import TextureLibs.Read as rd
 from CustomProcessing.Custom import runFunctionFromPath
 from CodeLibs.Path import Path
 from builtins import type as typeof

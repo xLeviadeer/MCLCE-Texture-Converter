@@ -1,9 +1,9 @@
 from CustomProcessing import Custom
-import Utility as ut
-import Read as rd
-import SizingImage as si
-from SizingImage import SizingImage as Image
-import Global
+import TextureLibs.TextureUtility as ut
+import TextureLibs.Read as rd
+import TextureLibs.SizingImage as si
+from TextureLibs.SizingImage import SizingImage as Image
+import TextureLibs.Global as Global
 
 class shine(Custom.Function):
     def createImage(self):

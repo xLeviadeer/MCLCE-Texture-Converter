@@ -1,7 +1,7 @@
-import Global
+import TextureLibs.Global as Global
 import os
 from . import Logger as log
-from SizingImage import SizingImage as Image
+from TextureLibs.SizingImage import SizingImage as Image
 from CodeLibs.Path import Path
 from CodeLibs.Path import testPath
 import traceback

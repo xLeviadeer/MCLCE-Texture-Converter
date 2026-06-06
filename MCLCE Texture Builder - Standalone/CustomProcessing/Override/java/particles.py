@@ -1,8 +1,8 @@
 from CustomProcessing import Custom
-import Utility as ut
-import Read as rd
-import SizingImage as si
-import Global
+import TextureLibs.TextureUtility as ut
+import TextureLibs.Read as rd
+import TextureLibs.SizingImage as si
+import TextureLibs.Global as Global
 
 class particles(Custom.Function):
     def createImage(self):

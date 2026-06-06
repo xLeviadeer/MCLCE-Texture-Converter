@@ -1,6 +1,6 @@
-from SizingImage import SizingImage as Image
-import Global
-import Utility as ut
+from TextureLibs.SizingImage import SizingImage as Image
+import TextureLibs.Global as Global
+import TextureLibs.TextureUtility as ut
 from CodeLibs.BracketRandom import Random, NoRandomValuesAvailableException
 from typing import Union, Self
 from CodeLibs import Logger as log

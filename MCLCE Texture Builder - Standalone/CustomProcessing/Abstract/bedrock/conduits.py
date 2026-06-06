@@ -1,8 +1,8 @@
 from CustomProcessing import Custom
-import Utility as ut
-from Sheet import SheetExtractor
-import Read as rd
-import SizingImage as si 
+import TextureLibs.TextureUtility as ut
+from TextureLibs.Sheet import SheetExtractor
+import TextureLibs.Read as rd
+import TextureLibs.SizingImage as si 
 
 class conduits(Custom.Function):
     def createImage(self):

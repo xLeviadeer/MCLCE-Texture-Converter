@@ -1,9 +1,9 @@
 from typing import Union
-from SizingImage import SizingImage as Image
+from TextureLibs.SizingImage import SizingImage as Image
 from CodeLibs.Path import Path
-import Global
-import Utility as ut
-import Read as rd
+import TextureLibs.Global as Global
+import TextureLibs.TextureUtility as ut
+import TextureLibs.Read as rd
 
 class SheetExtractor():
     def __init__(self, 

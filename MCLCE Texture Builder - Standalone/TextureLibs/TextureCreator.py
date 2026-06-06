@@ -11,16 +11,16 @@ import CustomProcessing.Abstract
 import CustomProcessing.Abstract.java
 import CustomProcessing.Custom
 import CustomProcessing.Versional
-from SizingImage import SizingImage as Image
+from TextureLibs.SizingImage import SizingImage as Image
 from builtins import type as typeof
 import os
 import shutil
 from CodeLibs import JsonHandler
-import SupportedTypes
-import Global
-import Utility as ut
-import Read as rd
-import SizingImage as si
+import TextureLibs.SupportedTypes as SupportedTypes
+import TextureLibs.Global as Global
+import TextureLibs.TextureUtility as ut
+import TextureLibs.Read as rd
+import TextureLibs.SizingImage as si
 from CodeLibs.ConsoleWriter import Writer
 from CodeLibs.ConsoleWriter import generateLocation
 from CodeLibs.Path import Path

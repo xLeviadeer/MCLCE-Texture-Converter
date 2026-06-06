@@ -1,14 +1,14 @@
 from builtins import type as typeof
-import Global
-import Global
+import TextureLibs.Global as Global
+import TextureLibs.Global as Global
 from CodeLibs import Logger as log
 from CodeLibs.Logger import print
 import re
 
 # try to import image
 try:
-    from SizingImage import SizingImage as Image
-    import SizingImage as si
+    from TextureLibs.SizingImage import SizingImage as Image
+    import TextureLibs.SizingImage as si
 except ModuleNotFoundError:
     pass # this will cause the program to fail later, but only runs when installing Pillow
 

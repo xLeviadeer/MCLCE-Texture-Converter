@@ -1,7 +1,7 @@
 from CustomProcessing import Custom
-import Utility as ut
-import Read as rd
-from Sheet import SheetExtractor
+import TextureLibs.TextureUtility as ut
+import TextureLibs.Read as rd
+from TextureLibs.Sheet import SheetExtractor
 from CodeLibs.Path import Path
 
 class kz(Custom.Function):

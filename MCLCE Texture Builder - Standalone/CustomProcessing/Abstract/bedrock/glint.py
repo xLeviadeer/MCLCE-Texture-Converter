@@ -1,6 +1,6 @@
 from CustomProcessing import Custom
-import Read as rd
-import Utility as ut
+import TextureLibs.Read as rd
+import TextureLibs.TextureUtility as ut
 
 class glint(Custom.Function):
     def createImage(self):

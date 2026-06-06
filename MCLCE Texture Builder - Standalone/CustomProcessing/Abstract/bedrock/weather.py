@@ -1,10 +1,10 @@
 from CustomProcessing import Custom
-import Utility as ut
-import Read as rd
-from Sheet import SheetExtractor
-import Global
+import TextureLibs.TextureUtility as ut
+import TextureLibs.Read as rd
+from TextureLibs.Sheet import SheetExtractor
+import TextureLibs.Global as Global
 from CodeLibs.Path import Path
-import SizingImage as si
+import TextureLibs.SizingImage as si
 from CodeLibs import Logger as log
 from CodeLibs.Logger import print
 import random

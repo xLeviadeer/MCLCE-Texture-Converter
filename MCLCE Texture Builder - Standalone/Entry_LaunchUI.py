@@ -1,5 +1,5 @@
-import Global
-import Interface
+import TextureLibs.Global as Global
+import InterfaceLibs.Interface as Interface
 
 # entry point requirement
 Global.name = str(__name__)

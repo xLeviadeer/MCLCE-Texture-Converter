@@ -1,6 +1,6 @@
 from builtins import type as typeof
 import traceback
-import Global
+import TextureLibs.Global as Global
 
 def testPath(value):
     if (typeof(value) is not Path): # checks if the value is a path

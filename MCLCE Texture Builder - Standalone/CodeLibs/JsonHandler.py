@@ -3,7 +3,7 @@ from typing import Union
 import json
 from copy import deepcopy
 #from os import getcwd as cwd
-from Global import getMainWorkingLoc as cwd
+from TextureLibs.Global import getMainWorkingLoc as cwd
 
 # - processes -
 

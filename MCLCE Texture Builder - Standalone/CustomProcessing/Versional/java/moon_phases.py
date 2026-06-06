@@ -1,7 +1,7 @@
 from CustomProcessing import Custom
-import Read as rd
-import Utility as ut
-from Sheet import SheetExtractor
+import TextureLibs.Read as rd
+import TextureLibs.TextureUtility as ut
+from TextureLibs.Sheet import SheetExtractor
 
 class moon_phases(Custom.Function):
     def createImage(self):

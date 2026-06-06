@@ -1,7 +1,7 @@
 from CustomProcessing import Custom
-import Utility as ut
-from Sheet import SheetExtractor
-import Read as rd
+import TextureLibs.TextureUtility as ut
+from TextureLibs.Sheet import SheetExtractor
+import TextureLibs.Read as rd
 from CodeLibs.Path import Path
 
 class horse_armor_leather(Custom.Function):

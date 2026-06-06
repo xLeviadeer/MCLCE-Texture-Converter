@@ -3,13 +3,13 @@ import shutil
 import threading
 import traceback
 import zipfile
-import Global
+import TextureLibs.Global as Global
 from CodeLibs import LoadingBar
 from CodeLibs import Logger as log
 from CodeLibs.Logger import print
 from builtins import type as typeof
-from Utility import compareVersions
-from SupportedTypes import supportedVersions
+from TextureLibs.TextureUtility import compareVersions
+from TextureLibs.SupportedTypes import supportedVersions
 from typing import Callable
 import subprocess
 from sys import executable
@@ -240,7 +240,7 @@ class EntryPoint():
                 self.__checkPythonAndPackageVersions()
 
                 # sizing image can only be imported after the package check
-                import SizingImage
+                import TextureLibs.SizingImage as SizingImage
                 SizingImage.changeProcessingSize(self.processingSize)
 
                 # has to be updated after printing is set so print() works
@@ -248,7 +248,7 @@ class EntryPoint():
                 Global.updateNotFoundImage()
 
                 # has to be imported down here (to ensure that files are read properly based on Global)
-                import TextureCreator
+                import TextureLibs.TextureCreator as TextureCreator
 
                 # runner, progressbar stuff
                 class Runner(threading.Thread):
@@ -397,14 +397,14 @@ class EntryPoint():
                 self.__checkPythonAndPackageVersions()
 
                 # sizing image can only be imported after the package check
-                import SizingImage
+                import TextureLibs.SizingImage as SizingImage
                 SizingImage.changeProcessingSize(self.processingSize)
 
                 # has to be updated after printing is set so print() works
                 # also has to be set after sizing image has been imported
                 Global.updateNotFoundImage()
 
-                import TextureCreator # has to be imported down here (to ensure that files are read properly based on uiInput)
+                import TextureLibs.TextureCreator as TextureCreator # has to be imported down here (to ensure that files are read properly based on uiInput)
 
                 # runner, progressbar stuff
                 class Runner(threading.Thread):
@@ -453,7 +453,7 @@ class EntryPoint():
             simply assigns the values to Global so that the program can continue during testing
         """
 
-        import SizingImage
+        import TextureLibs.SizingImage as SizingImage
 
         Global.errorMode = self.errorMode
         SizingImage.changeProcessingSize(self.processingSize)

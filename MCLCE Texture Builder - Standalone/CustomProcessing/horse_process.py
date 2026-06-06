@@ -1,7 +1,7 @@
 from CustomProcessing import Custom
-import Read as rd
-import Utility as ut
-import Global
+import TextureLibs.Read as rd
+import TextureLibs.TextureUtility as ut
+import TextureLibs.Global as Global
 
 # horse process is intended to be used versionally with java only
 # the reason it's a shared process is because it needs to pass arguments

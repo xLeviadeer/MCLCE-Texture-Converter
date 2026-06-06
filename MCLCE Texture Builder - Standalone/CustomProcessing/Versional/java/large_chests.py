@@ -1,9 +1,9 @@
 from CustomProcessing import Custom
-import Utility as ut
-from Sheet import SheetExtractor
-import Read as rd
+import TextureLibs.TextureUtility as ut
+from TextureLibs.Sheet import SheetExtractor
+import TextureLibs.Read as rd
 from CodeLibs.Path import Path
-from SizingImage import SizingImageOps as ImageOps
+from TextureLibs.SizingImage import SizingImageOps as ImageOps
 
 class large_chests(Custom.Function):
     def createImage(self):

@@ -9,7 +9,7 @@ from typing import Union
 
 # try to import Image, but if not continue running without image
 try:
-    from SizingImage import SizingImage as Image
+    from TextureLibs.SizingImage import SizingImage as Image
 except ModuleNotFoundError:
     pass # this will cause the program to fail later, but only runs when installing Pillow
 
@@ -83,12 +83,6 @@ name = None
 
 # an instance of the loading bar set from the entry point
 bar = None
-def endProgram(message:str=None): # ends the program
-    if (not isinstance(bar, LoadingBar.bar)):
-        print(message, log.EXIT)
-        exit()
-    else:
-        bar.close(message)
 
 # the name of the type which contains miscellaneous textures. This controls which type will read from a base directory instead of a subdirectory
 misc = "misc"
@@ -134,3 +128,11 @@ try:
     errorImage = Image.open(getMainWorkingLoc() + "\\base_textures\\error.png")
 except:
     pass # this will absolutely break stuff if you try to use errorImage from programEntry
+
+# end program helper 
+def endProgram(message:str=None): # ends the program
+    if (not isinstance(bar, LoadingBar.bar)):
+        print(message, log.EXIT)
+        exit()
+    else:
+        bar.close(message)

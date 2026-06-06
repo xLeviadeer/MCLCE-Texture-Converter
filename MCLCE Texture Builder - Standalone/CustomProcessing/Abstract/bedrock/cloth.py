@@ -1,7 +1,7 @@
 from CustomProcessing import Custom
-import Read as rd
-import Utility as ut
-import SizingImage as si
+import TextureLibs.Read as rd
+import TextureLibs.TextureUtility as ut
+import TextureLibs.SizingImage as si
 
 class cloth(Custom.Function):
     def createImage(self):

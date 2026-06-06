@@ -1,15 +1,15 @@
 from abc import ABC, abstractmethod
 import CustomProcessing.Custom
-import Global
+import TextureLibs.Global as Global
 import CodeLibs.Logger as log
 from CodeLibs.Logger import print
 import CustomProcessing
 import importlib
-import Utility as ut
+import TextureLibs.TextureUtility as ut
 import time
-import SizingImage
+import TextureLibs.SizingImage as SizingImage
 from builtins import type as typeof
-from SizingImage import SizingImage as Image
+from TextureLibs.SizingImage import SizingImage as Image
 
 class Function(ABC):
     """

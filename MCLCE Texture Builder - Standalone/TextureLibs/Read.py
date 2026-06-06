@@ -1,16 +1,16 @@
 from builtins import type as typeof
 from CodeLibs import Logger as log
 from CodeLibs.Logger import print
-import Utility as ut
-import Global
+import TextureLibs.TextureUtility as ut
+import TextureLibs.Global as Global
 from CodeLibs import Logger as log
 from CodeLibs import JsonHandler
 from CodeLibs.Path import Path
 from CustomProcessing.Custom import runFunctionFromPath
 from CustomProcessing.Custom import formatName
-from SupportedTypes import supportedTypes
-from SizingImage import SizingImage as Image
-import SizingImage as si
+from TextureLibs.SupportedTypes import supportedTypes
+from TextureLibs.SizingImage import SizingImage as Image
+import TextureLibs.SizingImage as si
 from PIL import Image as Sampling
 import math
 from copy import deepcopy

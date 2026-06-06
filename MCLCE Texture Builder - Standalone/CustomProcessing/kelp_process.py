@@ -1,9 +1,9 @@
 from CustomProcessing import Custom
-import SizingImage as si
-import Utility as ut
-import Read as rd
+import TextureLibs.SizingImage as si
+import TextureLibs.TextureUtility as ut
+import TextureLibs.Read as rd
 from multiprocessing import Pool
-import Global
+import TextureLibs.Global as Global
 
 class kelp_process(Custom.Function):
     def generateBlockOnImage(self, image, pos, color):

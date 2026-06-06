@@ -1,5 +1,5 @@
 from CustomProcessing import Custom
-import Utility as ut
+import TextureLibs.TextureUtility as ut
 
 class kelp(Custom.Function):
     def createImage(self):

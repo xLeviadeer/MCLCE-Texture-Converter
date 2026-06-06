@@ -1,4 +1,5 @@
 from typing import Self
+import sys
 
 from PySide6.QtWidgets import (
     QWidget,
@@ -11,7 +12,7 @@ from PySide6.QtGui import (
     QMouseEvent
 )
 
-import InterfaceUtil as iUt
+import InterfaceLibs.InterfaceUtil as iUt
 
 class CollapsibleSection(QWidget):
     """collapsible section of UI

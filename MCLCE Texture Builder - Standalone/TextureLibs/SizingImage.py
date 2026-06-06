@@ -365,7 +365,7 @@ class SizingImage():
             box += (box[0] + size[0], box[1] + size[1])
 
         if isinstance(im, str):
-            from . import ImageColor
+            from .. import ImageColor
 
             im = ImageColor.getcolor(im, self.mode)
 
@@ -742,7 +742,7 @@ class SizingImage():
         if mode == "P" and palette == Image.Palette.ADAPTIVE:
             im = self.im.quantize(colors)
             new_im = self._new(im)
-            from . import ImagePalette
+            from .. import ImagePalette
 
             new_im.palette = ImagePalette.ImagePalette(
                 "RGB", new_im.im.getpalette("RGB")
@@ -764,7 +764,7 @@ class SizingImage():
         if "LAB" in (self.mode, mode):
             other_mode = mode if self.mode == "LAB" else self.mode
             if other_mode in ("RGB", "RGBA", "RGBX"):
-                from . import ImageCms
+                from .. import ImageCms
 
                 srgb = ImageCms.createProfile("sRGB")
                 lab = ImageCms.createProfile("LAB")
@@ -794,7 +794,7 @@ class SizingImage():
 
         new_im = self._new(im)
         if mode == "P" and palette != Image.Palette.ADAPTIVE:
-            from . import ImagePalette
+            from .. import ImagePalette
 
             new_im.palette = ImagePalette.ImagePalette("RGB", im.getpalette("RGB"))
         if delete_trns:

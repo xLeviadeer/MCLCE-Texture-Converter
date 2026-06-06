@@ -1,7 +1,7 @@
 from CustomProcessing import Custom
-import Utility as ut
-import Read as rd
-from SizingImage import SizingImage as Image
+import TextureLibs.TextureUtility as ut
+import TextureLibs.Read as rd
+from TextureLibs.SizingImage import SizingImage as Image
 
 class glint(Custom.Function):
     def createImage(self):

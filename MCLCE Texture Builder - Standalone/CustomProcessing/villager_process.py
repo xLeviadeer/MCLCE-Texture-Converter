@@ -1,9 +1,9 @@
 from CustomProcessing import Custom
-import Utility as ut
-from Sheet import SheetExtractor
-import Read as rd
+import TextureLibs.TextureUtility as ut
+from TextureLibs.Sheet import SheetExtractor
+import TextureLibs.Read as rd
 from CodeLibs.Path import Path
-import Global
+import TextureLibs.Global as Global
 
 class villager_process(Custom.Function):
     argsJava = { # this is only here so it's obvious what values are associated with what names/keys

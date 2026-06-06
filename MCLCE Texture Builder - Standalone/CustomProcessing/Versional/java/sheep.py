@@ -1,7 +1,7 @@
 from CustomProcessing import Custom
-import Read as rd
-import Utility as ut
-import Global
+import TextureLibs.Read as rd
+import TextureLibs.TextureUtility as ut
+import TextureLibs.Global as Global
 
 class sheep(Custom.Function):
     def createImage(self, *args):
