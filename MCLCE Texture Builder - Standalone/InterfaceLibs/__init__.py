@@ -1,7 +1,7 @@
 # class style
 from .CollapsibleSection import CollapsibleSection
 from .PathDisplay import PathDisplay
-from .LoadingBar import LoadingBar
+from .ScaledProgressBar import ScaledProgressBar
 
 # module style
 from . import Interface 
@@ -11,7 +11,7 @@ from . import InterfaceUtil
 __all__ = [
     "CollapsibleSection",
     "PathDisplay",
-    "LoadingBar",
+    "ScaledProgressBar",
     "Interface",
     "InterfaceUtil"
 ]

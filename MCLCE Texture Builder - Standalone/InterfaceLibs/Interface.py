@@ -35,7 +35,7 @@ from PySide6.QtGui import (
 from InterfaceLibs import ( 
     CollapsibleSection,
     PathDisplay,
-    LoadingBar
+    ScaledProgressBar
 )
 import InterfaceLibs.InterfaceUtil as iUt
 from CodeLibs.Path import Path
@@ -571,7 +571,7 @@ class MainWindow(QWidget):
         self.__finalized_grid.setRowStretch(3, 0)
 
         # loading bar
-        self.__finalized_bar = LoadingBar()
+        self.__finalized_bar = ScaledProgressBar()
         self.__finalized_bar.setRange(0, 1000)
         self.__finalized_bar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         self.__finalized_bar.setMinimumWidth(FIN_C2WIDTH_MIN)

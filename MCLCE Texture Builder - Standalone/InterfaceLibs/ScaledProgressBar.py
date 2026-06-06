@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QProgressBar
 )
 
-class LoadingBar(QProgressBar):
+class ScaledProgressBar(QProgressBar):
     """allows for updating the value of QProgressBar using a scaled point value"""
 
     # ———VARIABLES———
