@@ -1,6 +1,6 @@
 import TextureLibs.Global as Global
 import os
-from . import Logger as log
+from CodeLibs import Logger as log
 from TextureLibs.SizingImage import SizingImage as Image
 from CodeLibs.Path import Path
 from CodeLibs.Path import testPath
@@ -57,7 +57,7 @@ class SpecialString():
         if (doErrorHandling == True):
             for line in traceback.format_stack()[:-1]: # prints a traceback (but not the last trace)
                 print(line.strip())
-            Global.endProgram(f"String ({string.lower()}) could not find a match, program exited")
+            Global.stopGen(f"String ({string.lower()}) could not find a match, program exited")
         else:
             raise SpecialStringError()
         
@@ -325,7 +325,7 @@ class Writer():
             try:
                 os.makedirs(pathNoName) # makes dirs if it doesn't exist
             except FileNotFoundError:
-                Global.endProgram("could not write to the input path. Did you use a path that both exists and can be edited?")
+                Global.stopGen("could not write to the input path. Did you use a path that both exists and can be edited?")
 
         # save or delete the actual image
         if (doDelete == False): # save
