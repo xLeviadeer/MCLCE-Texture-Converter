@@ -33,7 +33,7 @@ class ImageWithBools():
         if isinstance(image, Image):
             self.image = image
         else:
-            Global.endProgram(f"ImageWithBool's value, image, was not a SizingImage: {type(image)}")
+            Global.stopGen(f"ImageWithBool's value, image, was not a SizingImage: {type(image)}")
 
         # set valid bounds for the bools
         if (validBound == None):
@@ -42,7 +42,7 @@ class ImageWithBools():
             if isinstance(validBound, int): # check it's the correct format
                 self.validBound = validBound
             else:
-                Global.endProgram(f"ImageWithBool's value, validBound, was not a size/position tuple: {type(validBound)}")
+                Global.stopGen(f"ImageWithBool's value, validBound, was not a size/position tuple: {type(validBound)}")
 
         # image as bools
         self.setTextureBools()
@@ -84,9 +84,9 @@ class ImageWithBools():
             elif all(isinstance(value, bool) for value in lst): # singular list
                 self.nested = self._convertSingleListToNested(lst)
             else:
-                Global.endProgram("lst list format wasn't correct (must be all ints or all lists of ints)")
+                Global.stopGen("lst list format wasn't correct (must be all ints or all lists of ints)")
         else:
-            Global.endProgram("lst was not a list")
+            Global.stopGen("lst was not a list")
 
     def _convertNestedListToSingle(self, lst:list) -> list[bool]:
         """
@@ -102,7 +102,7 @@ class ImageWithBools():
         for sublst in lst:
             # check if sublist is correct length
             if (len(sublst) != self.validBound):
-                Global.endProgram(f"the nested list contained a list not of length {self.validBound} when attempting to convert to singular list, meaning it is not rectangular")
+                Global.stopGen(f"the nested list contained a list not of length {self.validBound} when attempting to convert to singular list, meaning it is not rectangular")
             
             # extend new list
             newLst.extend(sublst)
@@ -124,7 +124,7 @@ class ImageWithBools():
             and all((isinstance(value, list) 
             and (all(isinstance(subValue, bool) for subValue in value))
             ) for value in lst)) == False:
-            Global.endProgram("lst was not correctly formatted when attempting to convert nested list to singular list")
+            Global.stopGen("lst was not correctly formatted when attempting to convert nested list to singular list")
 
         # run
         return self._convertNestedListToSingle(lst)
@@ -140,7 +140,7 @@ class ImageWithBools():
 
         # ensure the list is of the right size
         if (len(lst) % self.validBound) != 0:
-            Global.endProgram("the singular list had remainder when attempting to convert to nested list, meaning it is not rectangular")
+            Global.stopGen("the singular list had remainder when attempting to convert to nested list, meaning it is not rectangular")
 
         # for each value, split it into a new nested list
         newLst = []
@@ -163,7 +163,7 @@ class ImageWithBools():
 
         # check format (lst is a list, all elements are integers)
         if (isinstance(lst, list) and all(isinstance(value, bool) for value in lst)) == False:
-            Global.endProgram("lst was not correctly formatted when attempting to convert singular list to nested list")
+            Global.stopGen("lst was not correctly formatted when attempting to convert singular list to nested list")
 
         # run
         return self._convertSingleListToNested(lst)
@@ -229,7 +229,7 @@ class ImageWithBools():
         # if list check validity
         elif ((not (isinstance(valueOrValues, list) or isinstance(valueOrValues, tuple))) 
             and all(isinstance(value, int) for value in valueOrValues)):
-            Global.endProgram(f"provided valueOrValues is/are not an int/list or tuple of ints: {type(valueOrValues)}")
+            Global.stopGen(f"provided valueOrValues is/are not an int/list or tuple of ints: {type(valueOrValues)}")
 
         # -- update nested --
 
@@ -274,13 +274,13 @@ class ImageWithBools():
         if not (isinstance(valuesNested, list)
             and all(isinstance(value, list) for value in valuesNested)
             and all(all(isinstance(item, int) for item in value) for value in valuesNested)):
-            Global.endProgram("provided valuesNested isn't of the correct format; must be a nested list")
+            Global.stopGen("provided valuesNested isn't of the correct format; must be a nested list")
         if not all((len(value) == len(valuesNested[0])) for value in valuesNested):
-            Global.endProgram("all nested lists weren't the same length")
+            Global.stopGen("all nested lists weren't the same length")
 
         # check pos
         if not ut.tupleIsPosition(pos):
-            Global.endProgram("the provided pos is not a position tuple")
+            Global.stopGen("the provided pos is not a position tuple")
 
         # starting at the pos and moving fo the size of the valuesNested
         overallY = pos[1]
@@ -312,11 +312,11 @@ class ImageWithBools():
 
         # check image
         if not isinstance(imageWithBools, ImageWithBools):
-            Global.endProgram(f"provided value for variable imageWithBools is not type ImageWithBools: {type(imageWithBools)}")
+            Global.stopGen(f"provided value for variable imageWithBools is not type ImageWithBools: {type(imageWithBools)}")
         
         # check pos
         if not ut.tupleIsPosition(pos):
-            Global.endProgram(f"provided value for variable pos is not a tuple of length 2 with only integers: {type(pos)}")
+            Global.stopGen(f"provided value for variable pos is not a tuple of length 2 with only integers: {type(pos)}")
 
         # paste boolean pattern
         self.pasteUsedValues(imageWithBools.nested, pos)
@@ -338,7 +338,7 @@ class ImageWithBools():
 
         # type check
         if not isinstance(index, int):
-            Global.endProgram(f"the value supplied for variable index was not an int: {type(index)}")
+            Global.stopGen(f"the value supplied for variable index was not an int: {type(index)}")
 
         # get value
         x = index % self.width

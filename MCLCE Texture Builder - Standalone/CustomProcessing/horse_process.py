@@ -12,7 +12,7 @@ class horse_process(Custom.Function):
         # get read name
         readName = args[0]
         if (not isinstance(readName, str)): 
-            Global.endProgram("horse was not supplied a valid reading name")
+            Global.stopGen("horse was not supplied a valid reading name")
             return
 
         # get image

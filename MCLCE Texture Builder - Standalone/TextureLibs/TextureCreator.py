@@ -5,24 +5,21 @@
     # true will mean an abstract or external is used
     # false will mean the old texture is used
 
+from xLPyBasics.JsonAPI import JsonHandler
+
 from CodeLibs import Logger as log
 from CodeLibs.Logger import print
-import CustomProcessing.Abstract
-import CustomProcessing.Abstract.java
 import CustomProcessing.Custom
-import CustomProcessing.Versional
 from TextureLibs.SizingImage import SizingImage as Image
 from builtins import type as typeof
 import os
 import shutil
-from CodeLibs import JsonHandler
 import TextureLibs.SupportedTypes as SupportedTypes
 import TextureLibs.Global as Global
 import TextureLibs.TextureUtility as ut
 import TextureLibs.Read as rd
 import TextureLibs.SizingImage as si
-from CodeLibs.ConsoleWriter import Writer
-from CodeLibs.ConsoleWriter import generateLocation
+from TextureLibs.ConsoleWriter import Writer, generateLocation
 from CodeLibs.Path import Path
 import CustomProcessing
 import math
@@ -228,7 +225,7 @@ def translateForAllTypes():
                 # block mipmaps (probably useless code since block has no overrides)
                 _writeMipMaps(overrideImage, type, wiiuLoc)
                 
-                Global.bar.stepCustom(Global.processingLength["type"][type]) # compensates the movement of the bar for this section
+                Global.bar.step(Global.processingLength["type"][type]) # compensates the movement of the bar for this section
             else:
                 print("no override texture found, continuing normally", log.LOG, 1)
 
@@ -236,7 +233,7 @@ def translateForAllTypes():
         if ((wiiuArr != False) and (doOverride != True)):
             # specific arr variables
             wiiuImage = rd.readWiiuImage(False, f"{Global.getLayerGame()}_{wiiuType}")
-            linkArr = JsonHandler.readFor("\\linking_libraries\\Base_" + Global.inputGame, type)
+            linkArr = JsonHandler.read_for("\\linking_libraries\\Base_" + Global.inputGame, type)
             currPos = [0, 0]
 
             # constructed image and height
@@ -314,7 +311,7 @@ def translateForAllTypes():
         # --- WiiU Abstract ---
         if (wiiuAbstract != False):
             # specific abstract variables
-            linkAbstract = JsonHandler.readFor("\\linking_libraries\\Base_" + Global.inputGame, type + "_abstract")
+            linkAbstract = JsonHandler.read_for("\\linking_libraries\\Base_" + Global.inputGame, type + "_abstract")
 
             # for wiiu abstract lib
             for wiiuName in wiiuAbstract:
@@ -407,7 +404,7 @@ def translateForAllTypes():
                 
     # no found textures error
     if (anyTexturesFound == False):
-        Global.endProgram("no textures could be found using this file directory\nIt *is* a valid directory, but no textures could be located inside of it")
+        Global.stopGen("no textures could be found using this file directory\nIt *is* a valid directory, but no textures could be located inside of it")
     print("build completed successfully", log.NOTE)
 
 def generateWiiuTextures():
@@ -483,7 +480,7 @@ def generateWiiuTextures():
             else: # generate mipmaps
                 _writeMipMaps(wiiuSheet, type, wiiuLoc)
 
-            Global.bar.stepCustom(Global.processingLength["type"][type]) # compensates the movement of the bar for this section
+            Global.bar.step(Global.processingLength["type"][type]) # compensates the movement of the bar for this section
 
         # WiiU Abstract processing
         for wiiuName in wiiuAbstract:
@@ -502,7 +499,7 @@ def generateWiiuTextures():
                 wiiuImage = rd.readWiiuImage(True, f"{type}\\{ut.getWiiuNameFromAbstract(currLoc[2])}")
             except FileNotFoundError:
                 print(f"Error for texture: {wiiuName}", log.EXIT)
-                Global.bar.close("A core program file could not be found or read correctly.\nPlease contact support")
+                Global.stopGen("A core program file could not be found or read correctly.\nPlease contact support")
             else:
                 print(f"{wiiuName}: found abstract", log.DEBUG, 1)
                 writer.writeImage(

@@ -80,7 +80,7 @@ class weather(Custom.Function):
         # section height
         sectionHeight = wiiuImageHeight / AmountOfSections
         if (sectionHeight % 1) != 0: # check if the division isn't an integer result (value with no decimals)
-            Global.endProgram(f"AmountOfSections ({AmountOfSections}) doesn't result in an integer pixel height for sections. Choose a different amount of sections.")
+            Global.stopGen(f"AmountOfSections ({AmountOfSections}) doesn't result in an integer pixel height for sections. Choose a different amount of sections.")
         sectionHeight = int(sectionHeight) # integer cast since we know it's an int
 
         # blank wiiu image
@@ -165,4 +165,4 @@ class weather(Custom.Function):
         elif (Global.useComplexProcessing == False):
             return self.simpleProcess()
         else:
-            Global.endProgram("the weather image process mode could not be decided because Global.useComplexProcessing was not set")
+            Global.stopGen("the weather image process mode could not be decided because Global.useComplexProcessing was not set")

@@ -32,7 +32,7 @@ class cows_process(Custom.Function):
                 doFaceMove = True
                 fileName = f"{fileName}_v2"
         else:
-            Global.endProgram("cows_process could not find inputGame")
+            Global.stopGen("cows_process could not find inputGame")
             return
 
         # read image

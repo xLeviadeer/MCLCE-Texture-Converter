@@ -1,8 +1,6 @@
 from PIL import Image, ImageFilter
 import math
 import warnings
-from CodeLibs import Logger as log
-from CodeLibs.Logger import print
 
 # what functions change in this file?
     # new
@@ -21,7 +19,7 @@ def resizingNeeded():
     return (getMultiplier() != float(1))
 
 def convertTuple(tup):
-    if (not (type(tup) is tuple)): print("conversion error -convertTuple", log.EXIT); exit()
+    if (not (type(tup) is tuple)): print("conversion error -convertTuple"); exit()
     if (not resizingNeeded()): return tup # check if resizing is needed
     i = 0
     tup = list(tup)
@@ -31,7 +29,7 @@ def convertTuple(tup):
     return tuple(tup)
 
 def deconvertTuple(tup):
-    if (not (type(tup) is tuple)): print("conversion error -deconvertTuple", log.EXIT); exit()
+    if (not (type(tup) is tuple)): print("conversion error -deconvertTuple"); exit()
     if (not resizingNeeded()): return tup # check if resizing is needed
     i = 0
     tup = list(tup)
@@ -41,12 +39,12 @@ def deconvertTuple(tup):
     return tuple(tup)
 
 def convertInt(num):
-    if (not (type(num) is int)): print("conversion error -convertInt", log.EXIT); exit()
+    if (not (type(num) is int)): print("conversion error -convertInt"); exit()
     if (not resizingNeeded()): return num # check if resizing is needed
     return int(num * getMultiplier())
 
 def deconvertInt(num):
-    if (not (type(num) is int)): print("conversion error -deconvertInt", log.EXIT); exit()
+    if (not (type(num) is int)): print("conversion error -deconvertInt"); exit()
     if (not resizingNeeded()): return num # check if resizing is needed
     return int(num / getMultiplier())
 
@@ -84,13 +82,13 @@ def verifyPowerOfTwo(num, variableName=None, *, overrideMinimum=16):
     proposedMultiplier = math.log2(num) - math.log2(baseSize) # contextualize the num's multiplier with the max size multiplier
     rangeOfLogOutput = math.log2(maxSize) - math.log2(baseSize) # get the range of possible outputs
     if (proposedMultiplier > rangeOfLogOutput): # checks if the num is in the the range (baseSize to maxSize)
-        print(f"{variableName}size is too large. Input: {num} when the max size is {maxSize}", log.EXIT)
+        print(f"{variableName}size is too large. Input: {num} when the max size is {maxSize}")
         exit()
     if (int(proposedMultiplier) != proposedMultiplier): # checks if the num is a power of 2
-        print(f"{variableName}size is not a power of 2. Values must be a power of two or similar (ex. '16', '32', '64')", log.EXIT)
+        print(f"{variableName}size is not a power of 2. Values must be a power of two or similar (ex. '16', '32', '64')")
         exit()
     if (proposedMultiplier < overrideMinimum): # checks if the number is negative (negative would mean below 16)
-        print(f"{variableName}size is too small. Minimum size is {baseSize}", log.EXIT)
+        print(f"{variableName}size is too small. Minimum size is {baseSize}")
         exit()
     return True
 

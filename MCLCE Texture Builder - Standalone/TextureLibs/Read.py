@@ -1,10 +1,11 @@
+from xLPyBasics.JsonAPI import JsonHandler
+
 from builtins import type as typeof
 from CodeLibs import Logger as log
 from CodeLibs.Logger import print
 import TextureLibs.TextureUtility as ut
 import TextureLibs.Global as Global
 from CodeLibs import Logger as log
-from CodeLibs import JsonHandler
 from CodeLibs.Path import Path
 from CustomProcessing.Custom import runFunctionFromPath
 from CustomProcessing.Custom import formatName
@@ -37,7 +38,7 @@ class notExpectedException(Exception):
             self.size = (ut.singularSizeOnTexSheet,) * 2
         elif (typeof(size) is not tuple) or (len(size) != 2): # custom size error checking
             print(f"invalid syntax for position argument: {size} when position requires a tuple of length 2", log.EXIT)
-            Global.bar.close()
+            Global.stopGen()
         else: # custom size
             self.size = size
     
@@ -54,12 +55,12 @@ def patchForVersion(path, type, wiiuName, doCustomProcessing:bool=True): # does 
     # set variable path (to just path or a version patch)
     if (Global.inputVersion == None): # if the version doesn't exist
         print("attempting to run version patches but no version has been set", log.EXIT)
-        Global.bar.close()
+        Global.stopGen()
     
     # try to read the version patches
     versionPatches = None
     try:
-        versionPatches = JsonHandler.readFor("\\linking_libraries\\version_patches_" + Global.inputGame, ["versions", Global.inputVersion, type])
+        versionPatches = JsonHandler.read_for("\\linking_libraries\\version_patches_" + Global.inputGame, ["versions", Global.inputVersion, type])
     except:
         # this can occur if the version patch (section, not just one) that's being read for doesn't exist. In this case, the program should continue to run
         # this also always occurs for bedrock since there is no version in bedrock
@@ -77,12 +78,12 @@ def patchForVersion(path, type, wiiuName, doCustomProcessing:bool=True): # does 
             returnImage = runFunctionFromPath("versional", formatName(wiiuName), wiiuName, type[:-9], None) # [:-9] removes the word "abstract"
             if (returnImage == None): # if there is no function found
                 print(f"(could not find) or (error while processing) patch function for \"{wiiuName}\" regarding {Global.inputVersion}", log.EXIT)
-                Global.bar.close()
+                Global.stopGen()
             print(f"found patch function for \"{wiiuName}\" and ran", log.PATCHFUNCTION, 1)
             return returnImage
         elif ((patchName == False) or (patchName == None)): # if version patch doesn't follow correct format
             print(f"invalid version patch formatting for \"{wiiuName}\" regarding {Global.inputVersion}", log.EXIT)
-            Global.bar.close()
+            Global.stopGen()
 
         # find prepending path section
         abstractKeyword = "_abstract"
@@ -203,30 +204,30 @@ def readLayerLib(wiiuType:str, layerVersion:str, isAbstract:bool, extendingName:
 
     # try to read the removal layer (sheet)
     try:
-        lib = JsonHandler.readFor(
+        lib = JsonHandler.read_for(
             Path(
                 "linking_libraries", 
                 f"layer_{layerVersion}"
-            ),
+            ).getPath(),
             f"{wiiuType}{"_abstract" if (isAbstract == True) else ""}_{extendingName}"
         )
 
         # do some type checking
         if (isAbstract == True):
             if (extendingName == "remove") and (not isinstance(lib, list)):
-                Global.endProgram("abstract removals must be of format list")
+                Global.stopGen("abstract removals must be of format list")
             elif (extendingName == "add") and (not isinstance(lib, dict)):
-                Global.endProgram("abstract additions must be of format dict")
+                Global.stopGen("abstract additions must be of format dict")
             elif (extendingName == "replace") and (not isinstance(lib, dict)):
                 if any(not isinstance(value, dict) for value in lib.values()):
-                    Global.endProgram("abstract replacements must be of format dict with dictionaries as values")
+                    Global.stopGen("abstract replacements must be of format dict with dictionaries as values")
         else: # not abstract
             if (extendingName == "height") and (not isinstance(lib, int)):
-                Global.endProgram("height overrides must be of format int")
+                Global.stopGen("height overrides must be of format int")
             elif (extendingName in ("add", "remove"))  and (not isinstance(lib, list)):
-                Global.endProgram("regular removals or additions must be of format list")
+                Global.stopGen("regular removals or additions must be of format list")
             elif (extendingName == "replace") and (not isinstance(lib, dict)):
-                Global.endProgram("abstract replacements must be of format dict")
+                Global.stopGen("abstract replacements must be of format dict")
 
         # return
         return lib
@@ -245,7 +246,7 @@ def readWiiuLibFor(type, travel):
             if (type.endswith("s")): type = type[:-1] # if there's and s at the end, get rid of it
             try:
                 # extends the wiiu lib should never be read not the wiiu lib
-                self.wiiuLib = JsonHandler.readFor(f"\\linking_libraries\\wiiu_" + type, deepcopy(travel))
+                self.wiiuLib = JsonHandler.read_for(f"\\linking_libraries\\wiiu_" + type, deepcopy(travel))
             except Exception as err:
                 print(f"{type}: could not read wiiu -> {travel}", log.DEBUG)
 
@@ -317,7 +318,7 @@ def readWiiuLibFor(type, travel):
                         for currName in listOfNames:
                             # check if the key is in the wiiu lib already
                             if (currName in self.wiiuLib):
-                                Global.endProgram(f"layering key, '{currName}', could not be added because it's already a key in the {Global.outputStructure}_{type} -> {travel} lib")
+                                Global.stopGen(f"layering key, '{currName}', could not be added because it's already a key in the {Global.outputStructure}_{type} -> {travel} lib")
                             # not already in lib
                             else: 
                                 addToNewLib(
@@ -330,10 +331,10 @@ def readWiiuLibFor(type, travel):
                             # check if the key is in the wiiu lib already
                             if isNumber(currName):
                                 if not (0 < int(currName) < len(self.wiiuLib)):
-                                    Global.endProgram(f"layering key, '{currName}', could not be replaced because the index is out of range in the {Global.outputStructure}_{type} -> {travel} lib")
+                                    Global.stopGen(f"layering key, '{currName}', could not be replaced because the index is out of range in the {Global.outputStructure}_{type} -> {travel} lib")
                             elif isinstance(currName, str):
                                 if (currName not in self.wiiuLib):
-                                    Global.endProgram(f"layering key, '{currName}', could not be replaced because it's not a key in the {Global.outputStructure}_{type} -> {travel} lib")
+                                    Global.stopGen(f"layering key, '{currName}', could not be replaced because it's not a key in the {Global.outputStructure}_{type} -> {travel} lib")
                             
                             # get values from list or dict
                             newName = (lib[currName] if (isAbstract == False) else lib[currName]["name"])
@@ -368,7 +369,7 @@ def readWiiuLibFor(type, travel):
 def readLinkLibFor(game, travel):
     content = False
     try:
-        content = JsonHandler.readFor("\\linking_libraries\\base_" + game, travel)
+        content = JsonHandler.read_for("\\linking_libraries\\base_" + game, travel)
     except Exception as e:
         print(f"{game}: could not read wiiu -> {travel}", log.DEBUG)
     return content

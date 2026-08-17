@@ -6,7 +6,7 @@ def testPath(value):
     if (typeof(value) is not Path): # checks if the value is a path
         for line in traceback.format_stack()[:-1]: # prints a traceback (but not the last trace)
             print(line.strip())
-        Global.bar.close(f"variable input was not the correct type. It is currently type '{typeof(value)}' when it needs to be 'Path'")
+        Global.stopGen(f"variable input was not the correct type. It is currently type '{typeof(value)}' when it needs to be 'Path'")
 
 class Path():
     def __init__(self, *args, isRootDirectory:bool=False, doFormalize:bool=False):

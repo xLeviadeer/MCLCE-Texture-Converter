@@ -43,17 +43,17 @@ class SheetExtractor():
             image = ut.blankImage(imagePathOrSize)
         elif isinstance(imagePathOrSize, Path): # path
             if any(value is None for value in (wiiuName, type, expectedSize)): 
-                Global.endProgram("attempting to read image from path (in SheetExtrator) but required parameters have not been set for reading")
+                Global.stopGen("attempting to read image from path (in SheetExtrator) but required parameters have not been set for reading")
             image = rd.readImageSingular(wiiuName, imagePathOrSize.getPath(), type, expectedSize, doVersionPatches=doVersionPatches, doPrint=doPrint, dox16Handling=dox16Handling)
         elif isinstance(imagePathOrSize, Image): # image
             image = imagePathOrSize
         else: 
-            Global.endProgram("the provided imagePathOrSize was not an image or a path")
+            Global.stopGen("the provided imagePathOrSize was not an image or a path")
         self.sheet = image
 
         # check formatting of subImageSize
         if (not ut.tupleIsPosition(subImageSize)):
-            Global.endProgram("subImageSize (of SheetExtractor) isn't a tuple of the correct format")
+            Global.stopGen("subImageSize (of SheetExtractor) isn't a tuple of the correct format")
         
         # set subsize pix
         self.subSizeXPix = subImageSize[0]
@@ -63,11 +63,11 @@ class SheetExtractor():
 
     def _tuplePositionCheck(self, pos) -> None:
         if (not ut.tupleIsPosition(pos)):
-            Global.endProgram("provided value isn't a tuple of the correct format")
+            Global.stopGen("provided value isn't a tuple of the correct format")
 
     def _intCheck(self, value) -> None:
         if (not isinstance(value, int)):
-            Global.endProgram("the provided value isn't an int")
+            Global.stopGen("the provided value isn't an int")
 
     def getPixelXOf(self, x:int) -> int:
         """
@@ -175,7 +175,7 @@ class SheetExtractor():
         
         # check if the image is an image
         if (not isinstance(image, Image)):
-            Global.endProgram("image value was not an Image")
+            Global.stopGen("image value was not an Image")
 
         # insertion based on destructive status
         if (isDestructive == True):

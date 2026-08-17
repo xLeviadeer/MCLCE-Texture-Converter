@@ -103,9 +103,9 @@ class WeatherLinkTexture(ImageWithBools):
                 self.nested = self.__convertSingleListToNested(lst)
                 self._setPaddingBools()
             else:
-                Global.endProgram("lst list format wasn't correct (must be all ints or all lists of ints)")
+                Global.stopGen("lst list format wasn't correct (must be all ints or all lists of ints)")
         else:
-            Global.endProgram("lst was not a list")
+            Global.stopGen("lst was not a list")
 
     def _setPaddingBools(self):
         """

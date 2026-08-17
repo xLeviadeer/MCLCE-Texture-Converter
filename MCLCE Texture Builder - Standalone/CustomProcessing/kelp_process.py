@@ -163,3 +163,4 @@ class kelp_process(Custom.Function):
             return self.simpleProcess(image)
         else:
             Global.endProgram("the kelp_process image process mode could not be decided because Global.useComplexProcessing was not set")
+            Global.stopGen("the kelp_process image process mode could not be decided because Global.useComplexProcessing was not set")

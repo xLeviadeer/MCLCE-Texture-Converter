@@ -56,7 +56,7 @@ def _closeProgramIfDebugFalse(name:str, message:str):
         print(f"using error texture for texture {name}, because a function for it could not be found", log.ERROR)
         return Global.errorImage.resize(ut.size()) # resize to singular size on sheet if needed
     print(message, log.ERROR)
-    Global.endProgram()
+    Global.stopGen()
 
 # function for getting a name with underscores
 def formatName(name:str):
@@ -106,7 +106,7 @@ def getClass(functionType:str, functionName:str):
             case None | "shared":
                 return root
             case _:
-                Global.endProgram(f"\"{functionType}\" is not a valid functionType")
+                Global.stopGen(f"\"{functionType}\" is not a valid functionType")
     
     # gets the game module from the function type
     def getGameModule(root):
@@ -116,7 +116,7 @@ def getClass(functionType:str, functionName:str):
             elif (Global.inputGame == "bedrock"):
                 return root.bedrock
             else:
-                Global.endProgram("Custom > getClass > getGameModule > Global.inputGame wasn't set to a valid game name")
+                Global.stopGen("Custom > getClass > getGameModule > Global.inputGame wasn't set to a valid game name")
                 return
         else: # if has no game/can't find game, return root
             return root

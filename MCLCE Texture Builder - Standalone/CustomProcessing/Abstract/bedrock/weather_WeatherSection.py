@@ -1,7 +1,8 @@
+from xLPyBasics.RandomAPI import Random, NoRandomValuesAvailableException
+
 from TextureLibs.SizingImage import SizingImage as Image
 import TextureLibs.Global as Global
 import TextureLibs.TextureUtility as ut
-from CodeLibs.BracketRandom import Random, NoRandomValuesAvailableException
 from typing import Union, Self
 from CodeLibs import Logger as log
 from CodeLibs.Logger import print
@@ -114,9 +115,9 @@ class WeatherSection(ImageWithBools):
                     self._convertBoolListToIntList(lstOrBracketRandom)
                 )
             else:
-                Global.endProgram("lst list format wasn't correct (must be all ints or all lists of ints)")
+                Global.stopGen("lst list format wasn't correct (must be all ints or all lists of ints)")
         else:
-            Global.endProgram("lstOrBracketRandom was not a list or bracket random")
+            Global.stopGen("lstOrBracketRandom was not a list or bracket random")
 
     def _convertBoolListToIntList(self, lst:list[bool]):
         """
@@ -148,7 +149,7 @@ class WeatherSection(ImageWithBools):
         """
 
         if not all(isinstance(value, bool) for value in lst):
-            Global.endProgram("lst was not correctly formatted when attempting to convert bool list to int list")
+            Global.stopGen("lst was not correctly formatted when attempting to convert bool list to int list")
 
         return self._convertBoolListToIntList(lst)
 
@@ -182,7 +183,7 @@ class WeatherSection(ImageWithBools):
         """
 
         if not all(isinstance(value, int) for value in lst):
-            Global.endProgram("lst was not correctly formatted when attempting to convert int list list to bool list")
+            Global.stopGen("lst was not correctly formatted when attempting to convert int list list to bool list")
 
         return self._convertIntListToBoolList(lst)
 
@@ -242,11 +243,11 @@ class WeatherSection(ImageWithBools):
 
         # check image
         if not isinstance(weatherLinkTexture, ImageWithBools):
-            Global.endProgram(f"provided value for variable imageWithBools is not type ImageWithBools: {type(imageWithBools)}")
+            Global.stopGen(f"provided value for variable imageWithBools is not type ImageWithBools: {type(imageWithBools)}")
         
         # check pos
         if not ut.tupleIsPosition(pos):
-            Global.endProgram(f"provided value for variable pos is not a tuple of length 2 with only integers: {type(pos)}")
+            Global.stopGen(f"provided value for variable pos is not a tuple of length 2 with only integers: {type(pos)}")
 
         # find pos adjusted for the real image starting point
         adjustedPos = ((pos[0] - weatherLinkTexture.startingPixelPos[0]), (pos[1] - weatherLinkTexture.startingPixelPos[1]))
@@ -286,11 +287,11 @@ class WeatherSection(ImageWithBools):
 
         # check if drops to use are correct
         if not all(isinstance(drops, WeatherLinkTexture) for drops in dropsToUse):
-            Global.endProgram("all drops in dropsToUse aren't RainDropLinkTextures")
+            Global.stopGen("all drops in dropsToUse aren't RainDropLinkTextures")
 
         # check if amount is an int
         if not isinstance(amount, int):
-            Global.endProgram("amount isn't an integer")
+            Global.stopGen("amount isn't an integer")
 
         # incrementing down from the amount of drops
         a = amount if (isLastSection == False) else (amount - 2) # make 2 less drops on the last section
@@ -432,7 +433,7 @@ class WeatherSection(ImageWithBools):
     def visualizeUsedAsImage(self):
         # check equality and quit if not equal, indicating an error
         if not self.checkValueEquality():
-            Global.endProgram("values were not equal, could not properly visualize")
+            Global.stopGen("values were not equal, could not properly visualize")
 
         # run super
         super().visualizeUsedAsImage()

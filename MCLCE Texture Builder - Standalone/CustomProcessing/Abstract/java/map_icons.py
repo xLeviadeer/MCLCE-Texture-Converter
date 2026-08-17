@@ -14,7 +14,7 @@ class map_icons(Custom.Function):
         elif (self.wiiuName == "additionalmapicons"):
             isReg = False
         else:
-            Global.endProgram("attempting to run map_icons process without using either mapicons or additionalmapicons")
+            Global.stopGen("attempting to run map_icons process without using either mapicons or additionalmapicons")
 
         # create sheets
         wiiuSheet = SheetExtractor(self.wiiuImage, ut.size(16))

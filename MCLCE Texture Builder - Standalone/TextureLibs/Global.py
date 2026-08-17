@@ -83,6 +83,8 @@ name = None
 
 # an instance of the loading bar set from the entry point
 bar = None
+# log window instance for connecting logs to the interface 
+log_win: LogWindow|None = None
 
 # the name of the type which contains miscellaneous textures. This controls which type will read from a base directory instead of a subdirectory
 misc = "misc"
