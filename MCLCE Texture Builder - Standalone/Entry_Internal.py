@@ -1,9 +1,12 @@
 # runs input checks for running Internal
 
+from xLPyBasics.JsonAPI import JsonHandler
+from xLPyBasics.PathAPI import Path
+Path.default_prepension.set(Path.cwd())
+
 import TextureLibs.Internal as Internal
 import TextureLibs.Global as Global
 import os
-from CodeLibs import JsonHandler
 from CodeLibs.Path import Path
 from builtins import type as typeof
 
@@ -49,10 +52,6 @@ selections = {
     "fileWriteModes": [
         "replace",
         "skip"
-    ],
-    "set": [
-        "Debug",
-        "Release"
     ],
     "versionPatchOptions": [
         "Specified Addition",
@@ -114,7 +113,7 @@ match (selectedMain):
             i = 0
             typeSpaceOptions = []
             print("select a typeSpace")
-            for type in JsonHandler.readAll(Path("linking_libraries", "Base_java")):
+            for type in JsonHandler.read_all(("linking_libraries", "Base_java")):
                 print(f"{i}) {type}")
                 typeSpaceOptions.append(type)
                 i += 1
@@ -150,8 +149,7 @@ match (selectedMain):
         else:
             Internal.generateVersionPatches()
     case "move assets":
-        set = selection("set")[1]
-        Internal.moveAssets(set)
+        Internal.moveAssets()
     case "generate color signatures":
         Global.inputGame = selection("games")[1]
         type = None

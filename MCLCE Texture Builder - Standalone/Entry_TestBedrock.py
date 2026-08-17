@@ -1,13 +1,9 @@
 from TextureLibs.EntryPoint import EntryPoint
 from CodeLibs import Logger as log
-import TextureLibs.Global as Global
-
-# set the name (must be set in the entry file)
-Global.name = str(__name__)
 
 # declare new entry point
 entry = EntryPoint(
-    errorMode="replace",
+    error_mode="replace",
     processingSize=16,
     useComplexProcessing=True,
     
@@ -20,8 +16,7 @@ entry = EntryPoint(
     outputStructure="wiiu dump",
     outputDrive="system",
 
-    logging=[],
-    showTracebacks=False,
+    logging=log.LoggerHandler.DEFAULT_FLAGS,
     isDirectPath=True,
     useErrorTexture=False,
     forceDumpMode=True
