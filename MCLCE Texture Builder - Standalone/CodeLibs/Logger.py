@@ -1,6 +1,15 @@
+from typing import Self, Iterable
 from enum import Enum
 import sys
 from builtins import print as pyPrint
+
+from xLPyBasics import Sentinels as df
+from xLPyBasics.JsonAPI import JsonHandler
+from xLPyBasics.PathAPI import PathHandler, Path, Pathable
+
+from bidict import bidict
+
+from TextureLibs import Global
 
 class _LoggerValue():
     """
@@ -85,7 +94,7 @@ def print(message: str="", mode: LoggerMode=LoggerMode.PLAIN, indent: int=0):
                 message = f" {message}"
                 indent -= 1
 
-        # print
+        # print & log
         pyPrint(message)
 
 def isEnabled(mode: LoggerMode):
@@ -135,3 +144,84 @@ def disableAll(exception: LoggerMode=None):
 def debugPrint():
     for item in LoggerMode:
         pyPrint(f"{item.__str__()}: {item.value}")
+
+class LoggerHandler:
+    DEFAULT_FLAGS: list[LoggerMode] = [
+        LoggerMode.VERYIMPORTANT,
+        LoggerMode.IMPORTANT,
+        LoggerMode.EXIT,
+        LoggerMode.ERROR,
+        LoggerMode.WARNING,
+        LoggerMode.LOG,
+        # no debug
+        LoggerMode.NOTE,
+        LoggerMode.PLAIN,
+        LoggerMode.SECTION,
+        LoggerMode.CHANNELONE,
+        LoggerMode.CHANNELTWO,
+        LoggerMode.CHANNELTHREE
+    ]
+
+    FLAG_CONVERSIONS: bidict[str, LoggerMode] = bidict({
+        "veryimportant": LoggerMode.VERYIMPORTANT,
+        "important": LoggerMode.IMPORTANT,
+        "exit": LoggerMode.EXIT,
+        "error": LoggerMode.ERROR,
+        "warning": LoggerMode.WARNING,
+        "log": LoggerMode.LOG,
+        "debug": LoggerMode.DEBUG,
+        "note": LoggerMode.NOTE,
+        "plain": LoggerMode.PLAIN,
+        "section": LoggerMode.SECTION,
+        "channelone": LoggerMode.CHANNELONE,
+        "channeltwo": LoggerMode.CHANNELTWO,
+        "channelthree": LoggerMode.CHANNELTHREE,
+        "customfunction": LoggerMode.CUSTOMFUNCTION,
+        "customfunctionrecursion": LoggerMode.CUSTOMFUNCTIONRECURSION,
+        "customfunctiontiming": LoggerMode.CUSTOMFUNCTIONTIMING,
+        "pathfunction": LoggerMode.PATCHFUNCTION,
+        "customweather": LoggerMode.CUSTOMWEATHER,
+        "debugtwo": LoggerMode.DEBUGTWO,
+        "debugbracketrandom": LoggerMode.DEBUGBRACKETRANDOM
+    })
+
+    def __init__(
+        self: Self,
+        pathable: Pathable
+    ) -> Self:
+        path = Path.create(pathable)
+        path.extension = "json"
+        self.__handler = PathHandler(path)
+
+    def __write_default_flags(self: Self) -> None:
+        default_strs: list[str] = [self.FLAG_CONVERSIONS.inv[flag] for flag in self.DEFAULT_FLAGS]
+        JsonHandler.write_all(self.__handler.path, default_strs)
+
+    def __convert_str_to_flags(self: Self, flag_strs: Iterable[str]) -> list[LoggerMode]|df.Type.Invalid:
+        flag_lst: list[LoggerMode] = []
+        for flag_str in flag_strs:
+            if flag_str in self.FLAG_CONVERSIONS:
+                flag_lst.append(self.FLAG_CONVERSIONS[flag_str])
+            else:
+                return df.Value.Invalid
+        return flag_lst
+
+    def read_flags(self: Self) -> list[LoggerMode]|df.Type.Invalid:
+        """reads the flags at this loggerhandler's path or returns invalid if the log flags are not valid 
+        ╎ does not handle a non-existent log flags file"""
+        flag_strs: list[str] = JsonHandler.read_all(self.__handler.path)
+        flag_lst: list[LoggerMode]|df.Type.Invalid = self.__convert_str_to_flags(flag_strs)
+        return flag_lst
+
+    def get_flags(self: Self) -> tuple[list[LoggerMode], bool]:
+        """reads the logger flags at the given path 
+        ╎ if any logger flag is invalid → returns the default logging flags 
+        ╎ if logger flags file doesn't exist writes it and returns defaults
+        ╎ bool represents whether the flags were default because flags were invalid (True invalid)"""
+        if not self.__handler.exists_file: 
+            self.__write_default_flags()
+            return self.DEFAULT_FLAGS, False
+        flags: list[LoggerMode]|df.Type.Invalid = self.read_flags()
+        if df.is_sentinel(flags, df.Type.Invalid): return self.DEFAULT_FLAGS, True
+        return flags, False
+
