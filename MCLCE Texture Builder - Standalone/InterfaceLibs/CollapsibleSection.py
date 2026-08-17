@@ -46,12 +46,6 @@ class CollapsibleSection(QWidget):
         else:
             self.__grid.setRowStretch(0, 1)
 
-    # self.button_font
-    @property
-    def button_font_str(self: Self) -> str: return self.__button.font().family()
-    @button_font_str.setter
-    def button_font_str(self: Self, font: str) -> None: self.__button.setFont(font)
-
     # self.button_font_size
     @property
     def button_font_size(self: Self) -> int: return self.__button.font().pointSize()
