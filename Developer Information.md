@@ -1,27 +1,33 @@
 # Developer Information
-## How to Execute the Texture Builder From the Backend
+## Developments Needs
+The Minecraft LCE Texture Converter is looking for the following developments
+- conversion updates for new Minecraft versions as they come out
+- "port pack" file write modes for all consoles
+- support for all textures being animated
+- option to generate upscales with xBR upscaling
+
+## Dependencies
+The Texture Converter will prompt you to install it's dependencies automatically only if the xLPyBasics dependency is installed. xLPyBasics is a "closed source" dependency installable here: [https://github.com/xLeviadeer/xLPyBasics](https://github.com/xLeviadeer/xLPyBasics). The project will fail to run without xLPyBasics. If you would not like to use automatic dependency installation or it isn't working for you then you can find a dependencies list in the `pyproject.toml` file.
+
+## Looking to Add Support for Later Versions of Minecraft?
+Reference the more in-depth walkthrough of how the TB works [here](https://github.com/xLeviadeer/MCLCE-Texture-Converter/blob/main/Adding%20CustomProcesses.md) to help develop this program.
+
+## How to Execute the Texture Converter with no Interface
 To run the TB you must create an instance of `EntryPoint.py` in it's own file.
 
-1. The TB will attempt to multithread if `executedFromC` is not set to `True`. Because of this the first line (besides imports) of the file must be `Global.name = str(__name__)` which is *required* to control multithreading during execution. This line must be in the file that initially runs when starting the program and nowhere else.
-2. Declare an `EntryPoint` in the file to determine what settings are used during execution. 
-3. Start the program from the `EntryPoint`
+1. Declare an `EntryPoint` in the file to determine what settings are used during execution. `entry = EntryPoint(…)`
+2. Start the program from the `EntryPoint` with `entry.start()`
 
-Cumulatively, an example looks like
+Cumulatively, an example looks like ⌄
 ```py
 from EntryPoint import EntryPoint
 from CodeLibs import Logger as log
-import Global
-
-# MUST BE SET AT THE BEGINNING OF MAIN FILE
-Global.name = str(__name__)
 
 # declare a new entry point
 entry = EntryPoint(
-    executedFromC=False,
     errorMode="error",
-    useComplexProcessing=False,
     processingSize=16,
-    debug=False,
+    useComplexProcessing=False,
     
     inputPath="C:\\my_cool_path",
     inputPathType="folder",
@@ -32,8 +38,7 @@ entry = EntryPoint(
     outputStructure="wiiu",
     outputDrive="system",
 
-    logging=[log.CUSTOMFUNCTION],
-    showTracebacks=False,
+    logging=log.LoggerHandler.DEFAULT_FLAGS,
     isDirectPath=True,
     useErrorTexture=False,
     forceDumpMode=False
@@ -58,29 +63,27 @@ Each setting has the following meanings:
 - `inputPathType`
     - the type of file/folder the inputPath leads to
     - folder
-    - .mcpack
-    - .zip
+    - mcpack
+    - zip
 - `inputGame`
     - the game to be translated from
     - java
     - bedrock
     - any lce format
 - `inputVersion`
-    - the game version of the to be translated textures
+    - the game version of the to-be-translated textures
 - `outputPath`
-    - filepath of where to output textures
+    - file-path of where to output textures
 - `outputStructure`
     - the output file structure, used to determine which ConsoleWriter mode to use
     - selects a build mode (build/dump) and a console to write to
-    - options for this are equal to the elements in the list under global/output_structures_\<console\>
+    - options for this are equal to the elements in the list under `global/output_structures_‹console›`
 - `outputDrive`
     - determines, when using build mode, whether to name the main file as usb or mlc
     - system
     - usb
 - `logging` (optional)
     - a list of LoggerModes which would be printed
-- `showTracebacks` (optional)
-    - whether or not to show tracebacks for debugging
 - `isDirectPath` (optional)
     - whether or not (both) inputPath and outputPath are direct paths; paths which lead to the "texture" or "textures" folder exactly.
     - controls whether the program will look for valid subfolders of texture packs to locate the texture pack contents.
@@ -90,12 +93,9 @@ Each setting has the following meanings:
 - `forceDumpMode` (optional)
     - whether to force the program to output in dump mode regardless of the build/dump status.
 
-## Looking to Add Support for Later Versions of Minecraft?
-Reference the more in-depth walkthrough of how the TB works [here](https://github.com/xLeviadeer/MCWiiU-Texture-Builder/blob/main/Adding%20CustomProcesses.md) to help develop this program.
-
 ## Programmer Information
 ### Warning About Internal Paths
-Paths inside of *internal only* files weren't made with the intention of being used outside of a personal environment and hence may contain specific file-paths which need to be changed in order for the method to function correctly.
+Paths inside of *internal only* files weren't made with the intention of being used outside of a personal environment and hence may contain specific file-paths which need to be changed in order for the method to function correctly. Internal only files include `Internal.py` and `Entry_Internal.py`
 
 ### Overview
 To run to the TB (texture builder), an `EntryPoint` must be declared. 
@@ -120,47 +120,37 @@ Both sheets and abstract textures use fundamentally different processing methods
 The TB is divided into a few core portions
 - **Frontend** - user interface
 - **Backend** - processing, non-user interface
-    - **Mount-end** - translating information from the frontend and checking the correctness of it.
-    - **Process-end** - process the texture pack according to the databases
-    - **Build-end** - proccess textures which cannot be simply copied
+    - **Build** - process the texture pack according to the databases and custom process library
     - **Databases** - a set of databases to store information about texture locations and processing specifications
     - **Internal** - test functions and processes for debugging and creating databases
 
 ### The Job of Each File
-#### EntryPoint.py
+#### TextureLibs > EntryPoint.py
 Module for defining settings, preparing and executing the program
-#### Global.py
+#### TextureLibs > Global.py
 Stores run-time specific settings data which can be accessed anywhere in the program
-#### Internal.py
+#### TextureLibs > Internal.py
 *internal only*, holds all debug functions
-#### Read.py
+#### TextureLibs > Read.py
 Holds functions for reading databases, images, etc.
-#### Sheet.py
+#### TextureLibs > Sheet.py
 Sheet extraction class, used for handling (copy, pasting) parts of an image which is a sheet/atlas of multiple textures
-#### SizingImage.py
+#### TextureLibs > SizingImage.py
 Extends/Replaces PIL's Image class to allow upscaling and downscaling of images
-#### SupportedTypes.py
+#### TextureLibs > SupportedTypes.py
 A list of supported types and supported versions the program will run
-#### Test_BracketRandom.py
-*internal only*, a test file for different implementations of BracketRandom
-#### TextureCreator.py
+#### TextureLibs > TextureCreator.py
 Module to create and write textures.
-#### Utility.py
+#### TextureLibs > TextureUtility.py
 Random utility functions
+#### TextureLibs >  ConsoleWriter.py
+Module to organize and format different output write locations.
 #### base_textures/
 Folder expected to contain base game textures named as `"{version}_{game}"` where the folder directly contains the contents of the "texture" or "textures" folder. Ex. `"./base_textures/1.14_java/block/grass_block.png"` would be a valid path. Contents of the `base_textures` folder aren't provided to ensure the saftey of this program. This folder also contains base game textures
-#### CodeLibs > ConsoleWriter.py
-Module to organize and format different output write locations.
-#### CodeLibs > JsonHandler.py
-Module to handle reading, parsing and casting json files.
-#### CodeLibs > JsonWritable.py
-Contains a class to be extended when creating a class which can be serialized to json and back
-#### CodeLibs > LoadingBar.py
-Module to create, close and update the LoadingBar window popup.
 #### CodeLibs > Logger.py
 Extends/Replaces python's `print` function to include multiple different print types which can be enabled or disabled in the `EntryPoint.py` for more effective debugging.
 #### CodeLibs > Path.py
-Module with class to create and manage filepaths.
+Module with class to create and manage file-paths.
 #### color_signatures/
 *internal only*, folder containing information about the color data of textures for creating `linked_libraries`.
 #### CustomProcessing > Custom.py
@@ -178,11 +168,11 @@ Folder of custom processes for textures which cannot simply be copied separated 
 Small databases containing information that corresponds with the Frontend for display of user options.
 #### Info/
 Folder containing information about the program or certain processes
+#### InterfaceLibs > …
+Interface classes used to construct and manage the interface
 #### linking_libraries/
 Libraries of data regarding game textures and how to translate them between versions. Generated with assistance via `color_signatures`.
 #### output/
 *internal only* folder for testing output.
-#### python_builder/
-*internal only* folder for building the project for the Frontend.
 #### resources/
 *internal only* files created while making image resources for the program.

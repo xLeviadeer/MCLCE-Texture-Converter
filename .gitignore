@@ -3,6 +3,9 @@ MCLCE Texture Builder - Standalone/.vscode/
 MCLCE Texture Builder - Standalone/.VSCodeCounter/
 MCLCE Texture Builder - Frontend/.vs/
 
+# logger settings
+MCLCE Texture Builder - Standalone/logger.json
+
 # base textures
 MCLCE Texture Builder - Standalone/base_textures/*
 !MCLCE Texture Builder - Standalone/base_textures/wiiu_abstract/
@@ -20,11 +23,11 @@ MCLCE Texture Builder - Standalone/base_textures/*
 !MCLCE Texture Builder - Standalone/base_textures/ps4_particle.png
 
 # tests
-MCLCE Texture Builder - Standalone/test_data/*
+MCLCE Texture Builder - Standalone/test_data/
 MCLCE Texture Builder - Standalone/Entry_Test.py
 
 # python builder
-MCLCE Texture Builder - Standalone/python_builder/*
+MCLCE Texture Builder - Standalone/python_builder/
 
 # notes
 MCLCE Texture Builder - Standalone/Info/NOTES.txt

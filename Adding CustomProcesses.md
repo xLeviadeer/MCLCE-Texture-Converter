@@ -241,7 +241,7 @@ It's **important** to note that using `Utility.readImageSingular()` will automat
 
 #### Not Found Exception - `notFoundException`
 `notFoundException`, "not found error" is thrown under the following conditions:
-* the texture builder attempted to read a file and found the texture
+* the texture converter attempted to read a file and found the texture
 * the read texture was not the same size as the expected size
     * the size of the texture was not of the same aspect ratio as the expected size
 * `Global.errorMode` is set to `"error"`
@@ -263,7 +263,7 @@ except rd.notFoundException:
 
 #### Not x16 Exception - `notx16Exception`
 `notx16Exception`, "x16 error" is thrown under the following conditions:
-* the texture builder attempted to read a file and found the texture
+* the texture converter attempted to read a file and found the texture
 * the read texture was not the same size as the expected sie
     * the size was not the same size as the expected size
 * `Global.errorMode` is set to `"replace'`
@@ -285,7 +285,7 @@ except rd.notx16Exception as err:
 
 #### Not Expected Exception - `notExpectedException`
 `notExpectedException` is thrown under the following conditions:
-* the texture builder attempted to read a file and could NOT find the texture
+* the texture converter attempted to read a file and could NOT find the texture
     * this could be due to the path being incorrect, the file having a different name, or the file not existing in the texture pack. However, it's assumed that the texture doesn't exist and the path and file name are correct when processing this error because both the path and file name are checked to be correct before attempting to read via `EntryPoint.py` for the file path and the version patches library system for file names.
 The default handling of `notExpectedException` is to use the wiiu image so that the file isn't missing from the finished pack. 
 
@@ -302,7 +302,7 @@ except rd.notExpectedException:
 ```
 
 ### Image Scaling
-The texture builder can detect images of the same aspect ratio which are powers of two and scale them up and down to be the correct size when converting textures. This is handled through the `SizingImage.py` class which contains the `SizingImage` class which wraps the needed functions of `PIL`s `Image` class with scaling support. However, this means that all images that are ever read go through scaling changes. 
+The texture converter can detect images of the same aspect ratio which are powers of two and scale them up and down to be the correct size when converting textures. This is handled through the `SizingImage.py` class which contains the `SizingImage` class which wraps the needed functions of `PIL`s `Image` class with scaling support. However, this means that all images that are ever read go through scaling changes. 
 
 To ensure all images can be properly processed as sized it's recommended to use the following import statements, where `Image` is called for image processes and `si` is called for image sizing processes
 ```py

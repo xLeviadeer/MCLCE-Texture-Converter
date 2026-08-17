@@ -1,0 +1,33 @@
+name: Trouble Building
+description: select this form if you had trouble building|converting a texture pack
+title: "⟬Build-Trouble⟭ "
+labels: []
+
+body:
+  - type: textarea
+    id: desc
+    attributes:
+      label: Description
+      description: What is going wrong when you try build?
+      placeholder: Describe your build issue...
+    validations:
+      required: true
+
+  - type: textarea
+    id: tex-pack
+    attributes:
+      label: Texture Pack
+      description: Attach your texture pack here by dragging it into this field or using the attachment button.
+      placeholder: Drag and drop your file here...
+    validations:
+      required: true
+
+  - type: textarea
+    id: log
+    attributes:
+      label: Log Text
+      description: Paste a copy of your log-book output here.
+      placeholder: Paste your log-book output here...
+      render: text
+    validations:
+      required: true
