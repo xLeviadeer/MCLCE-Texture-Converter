@@ -1,17 +1,13 @@
 # IMPORTANT: all variables in global must be set at startup because they have no default value and will cause errors
 
-from CodeLibs import LoadingBar
-from CodeLibs import Logger as log
-from CodeLibs.Logger import print
 import os
 from sys import exit
-from typing import Union
 
-# try to import Image, but if not continue running without image
-try:
-    from TextureLibs.SizingImage import SizingImage as Image
-except ModuleNotFoundError:
-    pass # this will cause the program to fail later, but only runs when installing Pillow
+from InterfaceLibs.StepProgressBar import StepProgressBar
+from InterfaceLibs.LogWindow import LogWindow
+from TextureLibs.SizingImage import SizingImage as Image
+
+class StopCreationError(Exception): pass
 
 # --- GENERAL SETTINGS ---
 
@@ -46,7 +42,7 @@ outputDump = None # dump or build
 
 # the file structure (export preset) that the program will use to write files
 outputStructure = None # wiiu, modpack, (etc.)
-def getLayerVersion() -> Union[str, None]:
+def getLayerVersion() -> str|None:
     """Gets the layer version using the outputStructure
 
     Returns:
@@ -60,7 +56,7 @@ def getLayerVersion() -> Union[str, None]:
             return "1.14"
         case _:
             return None
-def getLayerGame() -> Union[str, None]:
+def getLayerGame() -> str|None:
     """Gets the layer game using the outputStructure
 
     Returns:
@@ -82,7 +78,8 @@ iter = 0
 name = None
 
 # an instance of the loading bar set from the entry point
-bar = None
+bar: StepProgressBar|None = None
+
 # log window instance for connecting logs to the interface 
 log_win: LogWindow|None = None
 
@@ -117,11 +114,8 @@ def updateNotFoundImage(): # updates the notFoundImage location
         global notFoundImage
         notFoundImage = Image.open(getMainWorkingLoc() + "\\base_textures\\notFound.png")
     except:
-        print("attempt to update the notFound image failed", log.EXIT)
-        try: # attempts to close the bar, but it may not exist
-            bar.close()
-        except:
-            exit()
+        print("attempt to update the notFound image failed")
+        exit()
 
 # the error image
     # error image is only setup to work while in wiiuEntry, debug mode
@@ -132,9 +126,8 @@ except:
     pass # this will absolutely break stuff if you try to use errorImage from programEntry
 
 # end program helper 
-def endProgram(message:str=None): # ends the program
-    if (not isinstance(bar, LoadingBar.bar)):
-        print(message, log.EXIT)
+def stopGen(message: str = None): # ends the program
+    if not isinstance(bar, StepProgressBar): 
+        print(message)
         exit()
-    else:
-        bar.close(message)
+    else: raise StopCreationError(message)

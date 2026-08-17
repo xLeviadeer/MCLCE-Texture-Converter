@@ -96,6 +96,7 @@ def print(message: str="", mode: LoggerMode=LoggerMode.PLAIN, indent: int=0):
 
         # print & log
         pyPrint(message)
+        Global.log_win.push_text(message)
 
 def isEnabled(mode: LoggerMode):
     logMode = LoggerMode(mode)

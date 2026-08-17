@@ -10,7 +10,8 @@ from PySide6.QtCore import (
 )
 from PySide6.QtWidgets import (
     QWidget,
-    QLabel
+    QLabel,
+    QMessageBox
 )
 from PySide6.QtGui import (
     QCursor,
@@ -18,6 +19,14 @@ from PySide6.QtGui import (
 )
 
 from CodeLibs.Path import Path
+
+# ———STYLE SETTER———
+
+def set_style_of(widget: QWidget, state_name: str, state_value: str) -> None:
+    widget.setProperty(state_name, state_value)
+    widget.style().unpolish(widget)
+    widget.style().polish(widget)
+    widget.update()
 
 # ———FONT———
 
@@ -155,3 +164,28 @@ def open_in_explorer(path_or_str: str|Path):
 
     # open to path 
     QDesktopServices.openUrl(QUrl.fromLocalFile(path.getPath()))
+
+# ———INFORMATION BOX———
+
+# shows a popup window
+# acts like a question if more than one button is given
+def show_popup(
+    parent: QWidget,
+    title: str,
+    desc: str,
+    std_buttons: QMessageBox.StandardButton = QMessageBox.StandardButton.Ok
+) -> None:
+    window = QMessageBox(parent)
+    window.setProperty("role", "window")
+    window.setIcon(
+        QMessageBox.Icon.Information
+        if std_buttons.bit_count() <= 1
+        else QMessageBox.Icon.Question
+    )
+    window.setWindowTitle(title)
+    window.setText(desc)
+    window.setStandardButtons(std_buttons)
+    for button in window.buttons():
+        button.setProperty("role", "button")
+    return window.exec()
+    

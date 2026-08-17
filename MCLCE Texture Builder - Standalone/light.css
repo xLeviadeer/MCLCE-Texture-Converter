@@ -1,0 +1,110 @@
+/* rolees 
+* window
+* label
+* drag_background
+* drag_text
+* path
+* button
+* combo
+* frame
+* label_collapse
+* finalized_sect
+* progress_bar
+* text_display
+*/
+
+* {
+    font-family: "Arial Rounded MT"
+}
+QWidget[role="drag_text"] {
+    color: #373737;
+}
+
+QWidget[role="window"] {
+    background-color: #eff0f0;
+}
+
+QWidget[role="finalized_sect"] {
+    background-color: #e3e8e8;
+}
+
+QWidget[role="frame"] {
+    border: 2px solid #939da6;
+    border-radius: 20px;
+}
+
+QWidget[role="label"] {
+    color: #373737;
+}
+QWdiget[role=label_collapse] {
+    background-color: #ffffff;
+    color: #373737;
+}
+QWdiget[role=label_collapse]:hover {
+    background-color: #e8eeef;
+    color: #373737;
+}
+
+QWidget[role="button"] {
+    background-color: #ffffff;
+    color: #373737;
+    padding: 5%;
+}
+QWidget[role="button"]:disabled {
+    background-color: #d8d8d8;
+    color: #373737;
+    padding: 5%;
+}
+QWidget[role="button"]:hover {
+    background-color: #e8eeef;
+    color: #373737;
+    padding: 5%;
+}
+
+QWidget[role="combo"] {
+    background-color: #ffffff;
+    color: #373737;
+    padding: 5%;
+}
+QWidget[role="combo"]:disabled {
+    background-color: #d8d8d8;
+    color: #373737;
+    padding: 5%;
+}
+QWidget[role="combo"]:hover {
+    background-color: #e8eeef;
+    color: #373737;
+    padding: 5%;
+}
+
+QWidget[role="path"] {
+    color: #373737;
+}
+
+QWidget[role="text_display"] {
+    color: #373737;
+    padding: 5%;
+}
+
+/* drag */
+
+QWidget[role="drag_background"][state="idle"] {
+    background-color: #d5dfdf;
+    border-radius: 20px;
+}
+QWidget[role="drag_background"][state="valid_hover"] {
+    background-color: #aede98;
+    border-radius: 20px;
+}
+QWidget[role="drag_background"][state="reject_hover"] {
+    background-color: #de9898;
+    border-radius: 20px;
+}
+QWidget[role="drag_background"][state="invalid_hover"] {
+    background-color: #de9898;
+    border-radius: 20px;
+}
+QWidget[role="drag_background"][state="hold"] {
+    background-color: #98debc;
+    border-radius: 20px;
+}

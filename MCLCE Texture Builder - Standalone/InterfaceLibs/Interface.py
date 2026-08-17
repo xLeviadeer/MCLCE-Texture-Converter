@@ -1,7 +1,10 @@
-
 import sys
 import os
 from typing import Self, Callable, Any
+
+from xLPyBasics import Sentinels as df 
+from xLPyBasics.JsonAPI import JsonHandler
+from xLPyBasics.PathAPI import PathHandler, Search, Path as xLPyBasicsPath
 
 from PySide6.QtCore import (
     Qt,
@@ -35,34 +38,38 @@ from PySide6.QtGui import (
 from InterfaceLibs import ( 
     CollapsibleSection,
     PathDisplay,
-    ScaledProgressBar
+    StepProgressBar,
+    LogWindow,
+    HelpWindow
 )
 import InterfaceLibs.InterfaceUtil as iUt
 from CodeLibs.Path import Path
-from CodeLibs import JsonHandler
-
+from CodeLibs.Threading import create_loop_runner
 from TextureLibs.EntryPoint import EntryPoint
 from CodeLibs import Logger as log
 from TextureLibs import Global
 
+AUTHOR: str = "xLevia"
+
 # global libs holder
 class GlobalLibs:
-    program_version = JsonHandler.readAll(Path("global", "program_version"))
+    program_version: str = JsonHandler.read_for(("global", "program_version"), 0)
+    supported_versions: str = JsonHandler.read_for(("global", "supported_versions"), 0)
     
-    input_games = JsonHandler.readAll(Path("global", "input_games"))
+    input_games = JsonHandler.read_all(("global", "input_games"))
 
-    input_versions_bedrock = JsonHandler.readAll(Path("global", "input_versions_bedrock"))
+    input_versions_bedrock = JsonHandler.read_all(("global", "input_versions_bedrock"))
     input_versions_bedrock_plus = [f"{text}+" for text in input_versions_bedrock]
-    input_versions_java = JsonHandler.readAll(Path("global", "input_versions_java"))
+    input_versions_java = JsonHandler.read_all(("global", "input_versions_java"))
     input_versions_java_plus = [f"{text}+" for text in input_versions_java]
 
-    output_structures_nintendo_switch = JsonHandler.readAll(Path("global", "output_structures_nintendo_switch"))
-    output_structures_ps3 = JsonHandler.readAll(Path("global", "output_structures_ps3"))
-    output_structures_ps4 = JsonHandler.readAll(Path("global", "output_structures_ps4"))
-    output_structures_psV = JsonHandler.readAll(Path("global", "output_structures_psV"))
-    output_structures_wiiu = JsonHandler.readAll(Path("global", "output_structures_wiiu"))
-    output_structures_xbox_one = JsonHandler.readAll(Path("global", "output_structures_xbox_one"))
-    output_structures_xbox360 = JsonHandler.readAll(Path("global", "output_structures_xbox360"))
+    output_structures_nintendo_switch = JsonHandler.read_all(("global", "output_structures_nintendo_switch"))
+    output_structures_ps3 = JsonHandler.read_all(("global", "output_structures_ps3"))
+    output_structures_ps4 = JsonHandler.read_all(("global", "output_structures_ps4"))
+    output_structures_psV = JsonHandler.read_all(("global", "output_structures_psV"))
+    output_structures_wiiu = JsonHandler.read_all(("global", "output_structures_wiiu"))
+    output_structures_xbox_one = JsonHandler.read_all(("global", "output_structures_xbox_one"))
+    output_structures_xbox360 = JsonHandler.read_all(("global", "output_structures_xbox360"))
     output_structures_all = [
         *output_structures_nintendo_switch,
         *output_structures_ps3,
@@ -73,10 +80,10 @@ class GlobalLibs:
         *output_structures_xbox360
     ]
 
-    output_drives = JsonHandler.readAll(Path("global", "output_drives"))
+    output_drives = JsonHandler.read_all(("global", "output_drives"))
 
-    modes_size = JsonHandler.readAll(Path("global", "modes_size"))
-    modes_build = JsonHandler.readAll(Path("global", "modes_build"))
+    modes_size = JsonHandler.read_all(("global", "modes_size"))
+    modes_build = JsonHandler.read_all(("global", "modes_build"))
 
 # entry point data holder
 class EntryPointData:
@@ -113,7 +120,6 @@ class EntryPointData:
 # main window
 class MainWindow(QWidget):
 
-    ARIAL_ROUNDED: str = "Arial Rounded MT"
     ZIP: str = "zip"
     END_ZIP: str = f".{ZIP}"
     MCPACK: str = "mcpack"
@@ -158,25 +164,46 @@ class MainWindow(QWidget):
     __singleton_exists: bool = False
     def __init__(self: Self, icon: QIcon) -> Self:
         super().__init__()
+        self.setProperty("role", "window")
 
         # singleton
         if self.__singleton_exists: raise RuntimeError("MainWindow is a singleton and cannot be instantiated more than once")
         self.__singleton_exists = True
         
         # variables
-        self.__reject_input = False
+        self.__reject_input: bool = False
         self.__curr_version_set: str|None = None
         self.__curr_structure_set: str|None = None
         self.__entry_data = EntryPointData()
+
+        self.__log_window: LogWindow = LogWindow(self)
+        self.__help_window: HelpWindow = HelpWindow(self)
+        self.__logger_handler = log.LoggerHandler(xLPyBasicsPath("logger"))
         
         # set main window settings
-        self.setWindowTitle(f"MC LCE Texture Builder {GlobalLibs.program_version["ver"]}")
+        self.setWindowTitle(f"MC LCE Texture Converter {GlobalLibs.program_version}")
         self.setWindowIcon(icon)
         self.__grid = QGridLayout()
         iUt.change_margins(self.__grid, all=0)
-        self.__grid.setRowStretch(0, 1) # settings row
-        self.__grid.setRowStretch(1, 0) # bar row
+        self.__grid.setRowStretch(0, 0) # title row
+        self.__grid.setRowStretch(1, 1) # settings row
+        self.__grid.setRowStretch(2, 0) # bar row
         self.setLayout(self.__grid)
+
+        # title
+        self.__title = QLabel()
+        self.__title.setText(
+            "<strong>"
+            + "<span style=\"color: #373737;\">Minecraft </span>"
+            + "<span style=\"color: #e70012;\">L</span>"
+            + "<span style=\"color: #007c00;\">C</span>"
+            + "<span style=\"color: #0071d1;\">E</span>"
+            + "<span style=\"color: #373737;\"> Texture Converter</span>"
+            + "</strong>"
+        )
+        iUt.set_font_size(self.__title, self.HUGE_LABEL_SIZE)
+        self.__title.setContentsMargins(10, 10, 10, 0)
+        self.__grid.addWidget(self.__title, 0, 0, 1, 1)
 
         # settings grid
         self.__settings_grid = QGridLayout()
@@ -198,11 +225,11 @@ class MainWindow(QWidget):
         self.__settings_grid.setRowStretch(6, 0) # advanced container
         self.__settings_container = QWidget()
         self.__settings_container.setLayout(self.__settings_grid)
-        self.__grid.addWidget(self.__settings_container, 0, 0, 1, 1)
+        self.__grid.addWidget(self.__settings_container, 1, 0, 1, 1)
 
         # input label
         self.__input_label = QLabel("Input Settings")
-        self.__input_label.setFont(self.ARIAL_ROUNDED)
+        self.__input_label.setProperty("role", "label")
         iUt.set_font_size(self.__input_label, self.LARGE_LABEL_SIZE)
         self.__input_label.setFixedHeight(SET_R0HEIGHT)
         self.__settings_grid.addWidget(self.__input_label, 0, 0, 1, 1)
@@ -232,97 +259,66 @@ class MainWindow(QWidget):
 
         # input drag/drop space
         self.__input_drag = QWidget()
+        self.__input_drag.setProperty("role", "drag_background")
+        self.__input_drag.setProperty("state", "idle")
         self.__input_drag.setAcceptDrops(True) # must be the event holder because it's above the colored box
         self.__input_drag.dragEnterEvent = self.__handle_drag_enter
         self.__input_drag.dragLeaveEvent = self.__handle_drag_leave
         self.__input_drag.dropEvent = self.__handle_drop
         self.__input_drag.mousePressEvent = self.__handle_click
-        self.__input_drag.setStyleSheet(
-            """
-            QWidget[state="idle"] {
-                background-color: #222222;
-                border-radius: 20px;
-            }
-            QWidget[state="valid_hover"] {
-                background-color: #00FF00;
-                border-radius: 20px;
-            }
-            QWidget[state="reject_hover"] {
-                background-color: #FFFF00;
-                border-radius: 20px;
-            }
-            QWidget[state="invalid_hover"] {
-                background-color: #FF0000;
-                border-radius: 20px;
-            }
-            QWidget[state="hold"] {
-                background-color: #0000FF;
-                border-radius: 20px;
-            }
-            """
-        )
-        self.__input_drag.setProperty("state", "idle")
         self.__input_grid.addWidget(self.__input_drag, 0, 0, 1, 3)
 
         # input drag/drop space text
         self.__input_drag_text = QLabel()
+        self.__input_drag_text.setProperty("role", "drag_text")
         self.__input_drag_text.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
         self.__input_drag_text.setText(self.INPUT_DRAG_IDLE_STR) # default
-        self.__input_drag_text.setFont(self.ARIAL_ROUNDED)
         iUt.set_font_size(self.__input_drag_text, self.HUGE_LABEL_SIZE)
         self.__input_drag_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.__input_grid.addWidget(self.__input_drag_text, 0, 0, 1, 3)
 
         # input path text
         self.__input_path_text = PathDisplay()
-        self.__input_path_text.setFont(self.ARIAL_ROUNDED)
+        self.__input_path_text.setProperty("role", "path")
         self.__input_path_text.textChanged.connect(self.__handle_input_path_text_changed)
         self.__input_path_text.setFixedHeight(IN_R1HEIGHT)
         self.__input_grid.addWidget(self.__input_path_text, 1, 0, 1, 2)
 
         # input path browse
         self.__input_path_button = QPushButton("Browse Input")
-        self.__input_path_button.setFont(self.ARIAL_ROUNDED)
+        self.__input_path_button.setProperty("role", "button")
         self.__input_path_button.clicked.connect(self.__handle_input_path_button_click)
         self.__input_path_button.setFixedHeight(IN_R1HEIGHT)
         self.__input_grid.addWidget(self.__input_path_button, 1, 2, 1, 1)
 
         # input type label
-        self.__intput_type_label = QLabel("Convert From")
-        self.__intput_type_label.setFont(self.ARIAL_ROUNDED)
-        iUt.set_font_size(self.__intput_type_label, self.MEDIUM_LABEL_SIZE)
-        self.__intput_type_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-        self.__intput_type_label.setFixedHeight(IN_R2HEIGHT)
-        self.__input_grid.addWidget(self.__intput_type_label, 2, 0, 1, 1)
+        self.__input_type_label = QLabel("Convert From")
+        self.__input_type_label.setProperty("role", "label")
+        iUt.set_font_size(self.__input_type_label, self.MEDIUM_LABEL_SIZE)
+        self.__input_type_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        self.__input_type_label.setFixedHeight(IN_R2HEIGHT)
+        self.__input_grid.addWidget(self.__input_type_label, 2, 0, 1, 1)
 
         # input type
         self.__input_type = QComboBox()
+        self.__input_type.setProperty("role", "combo")
         self.__input_type.setToolTip("what edition of Minecraft is this texture pack from?")
         self.__input_type.addItems(GlobalLibs.input_games)
         self.__input_type.currentTextChanged.connect(self.__handle_input_type_changed)
-        self.__input_type.setFont(self.ARIAL_ROUNDED)
         self.__input_type.setFixedHeight(IN_R2HEIGHT)
         self.__input_grid.addWidget(self.__input_type, 2, 1, 1, 1)
 
         # input version
         self.__input_version = QComboBox()
+        self.__input_version.setProperty("role", "combo")
         self.__input_version.setToolTip("what version of Minecraft is this texure pack from?")
         self.__input_version.currentIndexChanged.connect(self.__handle_input_version_changed)
-        self.__input_version.setFont(self.ARIAL_ROUNDED)
         self.__input_version.setFixedHeight(IN_R2HEIGHT)
         self.__input_grid.addWidget(self.__input_version, 2, 2, 1, 1)
 
         # input frame
         self.__input_frame = QFrame()
-        self.__input_frame.setObjectName("input_frame")
-        self.__input_frame.setStyleSheet(
-            """
-                QFrame#input_frame {
-                    border: 2px solid #000000;
-                    border-radius: 20px;
-                }
-            """
-        )
+        self.__input_frame.setProperty("role", "frame")
         self.__input_frame.setLayout(self.__input_grid)
         self.__settings_grid.addWidget(self.__input_frame, 1, 0, 1, 1)
 
@@ -333,7 +329,7 @@ class MainWindow(QWidget):
 
         # output label
         self.__output_label = QLabel("Output Settings")
-        self.__output_label.setFont(self.ARIAL_ROUNDED)
+        self.__output_label.setProperty("role", "label")
         iUt.set_font_size(self.__output_label, self.LARGE_LABEL_SIZE)
         self.__output_label.setFixedHeight(SET_R3HEIGHT)
         self.__settings_grid.addWidget(self.__output_label, 3, 0, 1, 1)
@@ -360,21 +356,21 @@ class MainWindow(QWidget):
 
         # output path text
         self.__output_path_text = PathDisplay()
-        self.__output_path_text.setFont(self.ARIAL_ROUNDED)
+        self.__output_path_text.setProperty("role", "path")
         self.__output_path_text.textChanged.connect(self.__handle_output_path_text_changed)
         self.__output_path_text.setFixedHeight(OUT_R0HEIGHT)
         self.__output_grid.addWidget(self.__output_path_text, 0, 0, 1, 2)
 
         # output path browse
         self.__output_path_button = QPushButton("Browse Output")
-        self.__output_path_button.setFont(self.ARIAL_ROUNDED)
+        self.__output_path_button.setProperty("role", "button")
         self.__output_path_button.clicked.connect(self.__handle_output_path_button_click)
         self.__output_path_button.setFixedHeight(OUT_R0HEIGHT)
         self.__output_grid.addWidget(self.__output_path_button, 0, 2, 1, 1)
 
         # output structure label
         self.__output_structure_label = QLabel("Convert To")
-        self.__output_structure_label.setFont(self.ARIAL_ROUNDED)
+        self.__output_structure_label.setProperty("role", "label")
         iUt.set_font_size(self.__output_structure_label, self.MEDIUM_LABEL_SIZE)
         self.__output_structure_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.__output_structure_label.setFixedHeight(OUT_R1HEIGHT)
@@ -382,31 +378,23 @@ class MainWindow(QWidget):
 
         # output structure
         self.__output_structure = QComboBox()
+        self.__output_structure.setProperty("role", "combo")
         self.__output_structure.setToolTip("what version of Minecraft are you converting to?")
         self.__output_structure.currentIndexChanged.connect(self.__handle_output_structure_changed)
-        self.__output_structure.setFont(self.ARIAL_ROUNDED)
         self.__output_structure.setFixedHeight(OUT_R1HEIGHT)
         self.__output_grid.addWidget(self.__output_structure, 1, 1, 1, 1)
 
         # output open button
         self.__output_open_button = QPushButton("Open Output")
+        self.__output_open_button.setProperty("role", "button")
         self.__output_open_button.setToolTip("open the output folder that you have choosen")
-        self.__output_open_button.setFont(self.ARIAL_ROUNDED)
         self.__output_open_button.clicked.connect(self.__handle_output_open_button_click)
         self.__output_open_button.setFixedHeight(OUT_R1HEIGHT)
         self.__output_grid.addWidget(self.__output_open_button, 1, 2, 1, 1)
 
         # output frame
         self.__output_frame = QFrame()
-        self.__output_frame.setObjectName("output_frame")
-        self.__output_frame.setStyleSheet(
-            """
-                QFrame#output_frame {
-                    border: 2px solid #000000;
-                    border-radius: 20px;
-                }
-            """
-        )
+        self.__output_frame.setProperty("role", "frame")
         self.__output_frame.setLayout(self.__output_grid)
         self.__settings_grid.addWidget(self.__output_frame, 4, 0, 1, 1)
 
@@ -440,20 +428,12 @@ class MainWindow(QWidget):
 
         # advanced main
         self.__advanced_collapsible = CollapsibleSection("Advanced/More Settings")
-        self.__advanced_collapsible.button_font_str = self.ARIAL_ROUNDED
+        self.__advanced_collapsible.setProperty("role", "label_collapse")
         self.__advanced_collapsible.button_font_size = self.LARGE_LABEL_SIZE
         self.__advanced_collapsible.button_height = 30
             # content | frame
         advanced_collapsible_content = QFrame()
-        advanced_collapsible_content.setObjectName("advanced_frame")
-        advanced_collapsible_content.setStyleSheet(
-            """
-                QFrame#advanced_frame {
-                    border: 2px solid #000000;
-                    border-radius: 20px;
-                }
-            """
-        )
+        advanced_collapsible_content.setProperty("role", "frame")
         advanced_collapsible_content.setLayout(self.__advanced_grid)
         self.__advanced_collapsible.content = advanced_collapsible_content
         self.__settings_grid.addWidget(self.__advanced_collapsible, 6, 0, 1, 1)
@@ -464,12 +444,13 @@ class MainWindow(QWidget):
         advanced_drive_layout.setSpacing(FIN_LABEL_SPACING)
             # label
         advanced_drive_label = QLabel("Output Drive")
-        advanced_drive_label.setFont(self.ARIAL_ROUNDED)
+        advanced_drive_label.setProperty("role", "label")
         iUt.set_font_size(advanced_drive_label, self.MEDIUM_LABEL_SIZE)
         advanced_drive_label.setFixedHeight(ADV_R0HEIGHT_LABEL)
         advanced_drive_layout.addWidget(advanced_drive_label)
             # element
         self.__advanced_drive = QComboBox()
+        self.__advanced_drive.setProperty("role", "combo")
         self.__advanced_drive.setToolTip("what drive will this texture pack live on on your console?")
         self.__advanced_drive.currentIndexChanged.connect(self.__handle_advanced_drive_changed)
         self.__advanced_drive.setFixedHeight(ADV_R0HEIGHT_ELEMENT)
@@ -487,12 +468,13 @@ class MainWindow(QWidget):
         advanced_build_layout.setSpacing(FIN_LABEL_SPACING)
             # label
         advanced_build_label = QLabel("Build Mode")
-        advanced_build_label.setFont(self.ARIAL_ROUNDED)
+        advanced_build_label.setProperty("role", "label")
         iUt.set_font_size(advanced_build_label, self.MEDIUM_LABEL_SIZE)
         advanced_build_label.setFixedHeight(ADV_R0HEIGHT_LABEL)
         advanced_build_layout.addWidget(advanced_build_label)
             # element
         self.__advanced_build = QComboBox()
+        self.__advanced_build.setProperty("role", "combo")
         self.__advanced_build.setToolTip("what texture should be placed when a texture must be resized or cropped?")
         self.__advanced_build.addItems(GlobalLibs.modes_build)
         self.__advanced_build.currentIndexChanged.connect(self.__handle_advanced_error_changed)
@@ -512,12 +494,13 @@ class MainWindow(QWidget):
         advanced_size_layout.setSpacing(FIN_LABEL_SPACING)
             # label
         advanced_size_label = QLabel("Size Mode ")
-        advanced_size_label.setFont(self.ARIAL_ROUNDED)
+        advanced_size_label.setProperty("role", "label")
         iUt.set_font_size(advanced_size_label, self.MEDIUM_LABEL_SIZE)
         advanced_size_label.setFixedHeight(ADV_R0HEIGHT_LABEL)
         advanced_size_layout.addWidget(advanced_size_label)
             # element
         self.__advanced_size = QComboBox()
+        self.__advanced_size.setProperty("role", "combo")
         self.__advanced_size.setToolTip("what size should the texture pack come out as?")
         self.__advanced_size.addItems(GlobalLibs.modes_size)
         self.__advanced_size.currentIndexChanged.connect(self.__handle_advanced_size_changed)
@@ -531,22 +514,31 @@ class MainWindow(QWidget):
 
         # advanced ⧼show⧽ log
         self.__advanced_log_button = QPushButton("Show Log")
+        self.__advanced_log_button.setProperty("role", "button")
         self.__advanced_log_button.setToolTip("show the log details of the next/current active build")
-        self.__advanced_log_button.setFont(self.ARIAL_ROUNDED)
         self.__advanced_log_button.clicked.connect(self.__handle_advanced_log_button_click)
         self.__advanced_log_button.setFixedHeight(ADV_R1HEIGHT)
         self.__advanced_grid.addWidget(self.__advanced_log_button, 1, 0, 1, 1)
 
+        # advanced clear ⧼output⧽
+        self.__advanced_clear_button = QPushButton("Clear Output Folder")
+        self.__advanced_clear_button.setProperty("role", "button")
+        self.__advanced_clear_button.setToolTip("clears the output folder of ¡all¡ files")
+        self.__advanced_clear_button.clicked.connect(self.__handle_advanced_clear_button_click)
+        self.__advanced_clear_button.setFixedHeight(ADV_R1HEIGHT)
+        self.__advanced_grid.addWidget(self.__advanced_clear_button, 1, 1, 1, 1)
+
+        self.__advanced_info_button = QPushButton("Help and Info")
+        self.__advanced_info_button.setProperty("role", "button")
+        self.__advanced_info_button.setToolTip("see help and information about using this program")
+        self.__advanced_info_button.clicked.connect(self.__handle_advanced_info_button_click)
+        self.__advanced_info_button.setFixedHeight(ADV_R1HEIGHT)
+        self.__advanced_grid.addWidget(self.__advanced_info_button, 1, 2, 1, 1)
+
         # finalized bar
         self.__finalized = QFrame()
-        self.__finalized.setStyleSheet(
-            """
-                QFrame {
-                    background-color: #dfdfdf;
-                }
-            """
-        )
-        self.__grid.addWidget(self.__finalized, 1, 0, 1, 1)
+        self.__finalized.setProperty("role", "finalized_sect")
+        self.__grid.addWidget(self.__finalized, 2, 0, 1, 1)
 
         # finalized grid rows
         self.__finalized_grid = QGridLayout()
@@ -571,21 +563,30 @@ class MainWindow(QWidget):
         self.__finalized_grid.setRowStretch(3, 0)
 
         # loading bar
-        self.__finalized_bar = ScaledProgressBar()
-        self.__finalized_bar.setRange(0, 1000)
+        self.__finalized_bar = StepProgressBar()
+        self.__finalized_bar.setProperty("role", "progress_bar")
         self.__finalized_bar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         self.__finalized_bar.setMinimumWidth(FIN_C2WIDTH_MIN)
         self.__finalized_bar.setMaximumWidth(FIN_C2WIDTH_MAX)
         self.__finalized_bar.setFixedHeight(FIN_R0HEIGHT)
         self.__finalized_grid.addWidget(self.__finalized_bar, 0, 2, 1, 1)
-        Global.bar = self.__finalized_bar
 
         # build button
-        self.__finalized_build = QPushButton("Build")
+        self.__finalized_build = QPushButton("Convert")
+        self.__finalized_build.setProperty("role", "button")
         self.__set_finalized_build_state(False)
         self.__finalized_build.clicked.connect(self.__handle_finalized_build_click)
         self.__finalized_build.setFixedSize(FIN_C3WIDTH, FIN_R0HEIGHT)
         self.__finalized_grid.addWidget(self.__finalized_build, 0, 3, 1, 1)
+
+        # supported versions
+        self.__finalized_supported = QLabel(f"supports {GlobalLibs.supported_versions}   •   created by {AUTHOR}")
+        self.__finalized_supported.setProperty("role", "label")
+        iUt.set_font_size(self.__finalized_supported, self.SMALL_LABEL_SIZE)
+        self.__finalized_supported.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        self.__finalized_supported.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.__finalized_supported.setFixedHeight(FIN_R1HEIGHT)
+        self.__finalized_grid.addWidget(self.__finalized_supported, 1, 0, 1, 4)
 
         # set main window size 
         self.setMaximumSize(1000, 1000)
@@ -665,7 +666,7 @@ class MainWindow(QWidget):
     def __clear_input_path(self: Self, msg: str|None = None) -> None:
         self.__input_path_text.setText("")
         self.__entry_data.input_path = None
-        if msg != None: QMessageBox.information(self, "path cleared", msg)
+        if msg != None: iUt.show_popup(self, "path cleared", msg)
 
     def __prompt_input_path(self: Self) -> None:
         input_str: str = self.__select_file_or_folder(f"Texture Packs (‹folder› *{self.END_MCPACK} *{self.END_ZIP})")
@@ -809,7 +810,7 @@ class MainWindow(QWidget):
                 self.__set_input_rejection(MODERN_BUTTON_STATE)
                 self.__set_versions(self.BEDROCK)
                 self.__set_structures(self.BEDROCK)
-            case "xbox one/nintendo switch default textures (dump only)":
+            case "xbox one/nintendo switch default textures":
                 self.__entry_data.input_game = "wiiu"
                 self.__entry_data.input_path_type = "‹none›"
                 self.__clear_input_path(LCE_CLEAR_MSG)
@@ -823,14 +824,14 @@ class MainWindow(QWidget):
                 self.__set_input_rejection(LCE_BUTTON_STATE)
                 self.__set_versions(None)
                 self.__set_structures(self.WIIU)
-            case "xbox360/ps3/psV default textures (dump only)":
+            case "xbox360/ps3/psV default textures":
                 self.__entry_data.input_game = "wiiu"
                 self.__entry_data.input_path_type = "‹none›"
                 self.__clear_input_path(LCE_CLEAR_MSG)
                 self.__set_input_rejection(LCE_BUTTON_STATE)
                 self.__set_versions(None)
                 self.__set_structures(self.XBOX360)
-            case "ps4 default textures (dump only)":
+            case "ps4 default textures":
                 self.__entry_data.input_game = "wiiu"
                 self.__entry_data.input_path_type = "‹none›"
                 self.__clear_input_path(LCE_CLEAR_MSG)
@@ -913,7 +914,11 @@ class MainWindow(QWidget):
         # check build
         self.__update_for_build_requirements()
 
-    def __if_path_exists(self: Self, which_path: str, callback: Callable|None = None) -> None:
+    def __if_path_exists(
+        self: Self, 
+        which_path: str,
+        callback: Callable[[str], None]|None = None
+    ) -> None:
         # select and validate ‹which_path›
         host: QWidget|None = None
         match which_path:
@@ -928,7 +933,7 @@ class MainWindow(QWidget):
                 callback(path)
         else:
             host.setText("")
-            QMessageBox.information(self, "file/folder doesn't exist", f"the specified output directory ({path}) could not be found. as a result it has been cleared")
+            iUt.show_popup(self, "file/folder doesn't exist", f"the specified {which_path} directory ({path}) could not be found. as a result it has been cleared")
     
     def __handle_output_open_button_click(self: Self) -> None:
         # check if folder exists
@@ -984,8 +989,62 @@ class MainWindow(QWidget):
         # check build
         self.__update_for_build_requirements()
 
+    def __set_settings_enabled(self: Self, value: bool) -> None: 
+        self.__finalized_build.setEnabled(value)
+        self.__settings_container.setEnabled(value)
+
     def __handle_advanced_log_button_click(self: Self) -> None:
-        pass
+        self.__log_window.show()
+
+    def __handle_advanced_clear_button_click(self: Self) -> None:
+        def clear_files(path_str: str) -> None:
+            self.__set_settings_enabled(False)
+            def finalize_success() -> None:
+                self.__finalized_bar.stepReset()
+                iUt.show_popup(self, "success", "finished clearing. files have been attempted to be sent to the recycle bin")
+                self.__set_settings_enabled(True)
+            def finalize_fail() -> None:
+                self.__finalized_bar.stepReset()
+                iUt.show_popup(self, "failed", "failed to complete clearing. some files may have been attempted to be sent to the recycle bin")
+                self.__set_settings_enabled(True)
+
+            # confirm
+            result: QMessageBox.StandardButton = iUt.show_popup(
+                self, 
+                "please confirm", 
+                f"are you sure you want to clear the contents of ⸉{path_str}⸉?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            if result != QMessageBox.StandardButton.Yes: return
+
+            # get files
+            handler = PathHandler(xLPyBasicsPath(self.__entry_data.output_path, prepension=None))
+            items: tuple[PathHandler, ...]|df.Type.Empty = handler.read_dir(Search.Settings(
+                include=Search.Include.FilesAndAllDirectories,
+                recursion_depth=Search.MAX_RECURSION
+            ))
+            if len(items) == 0: 
+                finalize_success()
+                return
+
+            # ⧼bar⧽ setup
+            self.__finalized_bar.setRange(0, len(items))
+            self.__finalized_bar.setValue(len(items))
+
+            # set progress bar & delete
+            # another cleanup issue with runner idrc abt
+            def clear_file(data: tuple[int, PathHandler]) -> None:
+                item = data[1]
+                item.remove(do_recycle=True)
+            self.__runner = create_loop_runner(items, clear_file)
+            self.__runner.on_progress.connect(lambda _: self.__finalized_bar.stepBack())
+            self.__runner.on_complete.connect(finalize_success)
+            self.__runner.on_exception.connect(finalize_fail)
+            self.__runner.start()
+        self.__if_path_exists("output", clear_files)
+
+    def __handle_advanced_info_button_click(self: Self) -> None:
+        self.__help_window.show()
         
     def __set_finalized_build_state(self: Self, state: bool) -> None:
         self.__finalized_build.setToolTip(self.BUILD_ENABLED_TOOLTIP if state else self.BUILD_DISABLED_TOOLTIP)
@@ -1035,14 +1094,13 @@ class MainWindow(QWidget):
 
     def __handle_finalized_build_click(self: Self) -> None:
         # helper for errors when building
-        def show_error(text: str) -> None: QMessageBox.information(self, "error when buidling", text)
+        def show_error(err: Exception) -> None: iUt.show_popup(self, "error when buidling", str(err))
 
         # helper to set None as an empty string
         def none_empty(val: None|Any) -> str|Any: return "" if val == None else val
 
         # finish helper to re-enable settings
-        def set_settings_enabled(v: bool) -> None: self.__settings_container.setEnabled(v)
-        set_settings_enabled(False)
+        self.__set_settings_enabled(False)
 
         # validate input and output paths still exist
         if (
@@ -1051,7 +1109,15 @@ class MainWindow(QWidget):
         ): self.__if_path_exists("input")
         self.__if_path_exists("output")
 
-        # initialize entry point
+        # reset bar
+        self.__finalized_bar.stepReset()
+        self.__log_window.clear_text()
+
+        # get logger flags
+        flags, invalid_flags = self.__logger_handler.get_flags()
+        if invalid_flags: iUt.show_popup(self, "invalid logger flags", "the provided logger flags were invalid, using default flags instead")
+
+        # run entry point
         entry = EntryPoint(
             errorMode=self.__entry_data.build_mode,
             processingSize=self.__entry_data.size_mode,
@@ -1066,20 +1132,30 @@ class MainWindow(QWidget):
             outputStructure=self.__entry_data.output_structure,
             outputDrive=none_empty(self.__entry_data.output_drive),
 
-            logging=[log.PLAIN, log.WARNING, log.LOG]
+            logging=flags,
+            assoc_bar=self.__finalized_bar,
+            assoc_logwindow=self.__log_window,
+            on_exception=show_error
         )
 
-        # run entry point
-        entry.start()
-
-        # finish
-        set_settings_enabled(True)
+        # run entry point & finish
+        def finished() -> None:
+            self.__finalized_bar.setValue(self.__finalized_bar.range)
+            self.__set_settings_enabled(True)
+        entry.start(finished)
 
 def launch() -> None:
     # app construction 
     app = QApplication(sys.argv)
     ICON = QIcon("resources/Re.ico")
     app.setWindowIcon(ICON)
+    styles_handler = PathHandler(xLPyBasicsPath(
+        "light", 
+        extension="css", 
+        prepension=xLPyBasicsPath.get_meipass(xLPyBasicsPath.cwd()))
+    )
+    styles_text = styles_handler.read()
+    app.setStyleSheet(styles_text)
 
     # set main window
     window = MainWindow(ICON)
