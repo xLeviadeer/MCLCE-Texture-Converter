@@ -23,6 +23,10 @@ class kelp_process(Custom.Function):
         multiplier = si.getMultiplier()
         return ((pos[0] % multiplier) == 0) and ((pos[1] % multiplier) == 0)
 
+    @classmethod
+    def setPixelAsAlpha(cls, currPixel, i, j, image, args):
+        return tuple(list(currPixel)[:3] + [0])
+
     def processKelpSubImage(self, image):
         alphaImage = ut.blankImage(image.size, doResize=False)
         image = image.convert("RGBA")
@@ -94,9 +98,7 @@ class kelp_process(Custom.Function):
             i += 1
 
         # set alpha sections to alpha
-        def setAsAlpha(currPixel, i, j, image, args):
-            return tuple(list(currPixel)[:3] + [0])
-        newImage = ut.forEveryPixel(alphaImage, setAsAlpha)
+        newImage = ut.forEveryPixel(alphaImage, kelp_process.setPixelAsAlpha)
         # composite kelp on top
         newImage.alpha_composite(image, (0, 0), doResize=False)
 
@@ -137,6 +139,7 @@ class kelp_process(Custom.Function):
             bgImage = ut.blankImage(images[i].size, color=currAverageColor, doResize=False)
 
             # set kelp onto background and set images[i]
+            bgImage = ut.forEveryPixel(bgImage, kelp_process.setPixelAsAlpha)
             bgImage.alpha_composite(images[i])
             images[i] = bgImage
 
@@ -148,7 +151,7 @@ class kelp_process(Custom.Function):
         # determines which texture to use
         readName = args[0]
         if (not isinstance(readName, str)):
-            Global.endProgram("kelp_process was not supplied a valid reading name")
+            Global.stopGen("kelp_process was not supplied a valid reading name")
             return
         type = "block" + ("" if (Global.inputGame == "java") else "s") # sets the type based on game
         image = rd.readImageSingular(self.wiiuName, readName, type, ut.size(16, 320))
@@ -162,5 +165,4 @@ class kelp_process(Custom.Function):
         elif (Global.useComplexProcessing == False):
             return self.simpleProcess(image)
         else:
-            Global.endProgram("the kelp_process image process mode could not be decided because Global.useComplexProcessing was not set")
             Global.stopGen("the kelp_process image process mode could not be decided because Global.useComplexProcessing was not set")
