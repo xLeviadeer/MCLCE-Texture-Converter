@@ -1,9 +1,10 @@
+from xLPyBasics.Dependencies import compare_versions
+
 from builtins import type as typeof
 import TextureLibs.Global as Global
 import TextureLibs.Global as Global
 from CodeLibs import Logger as log
 from CodeLibs.Logger import print
-import re
 
 # try to import image
 try:
@@ -84,123 +85,7 @@ def checkVersion(majorUpdate:int, minorVersion:int=0, subVersion:int=0, directio
         - Boolean
     """
     minorVersion = 0 if (minorVersion == None) else minorVersion # change minorVersion None to 0
-    return compareVersions(Global.inputVersion, [1, majorUpdate, minorVersion, subVersion], direction, inclusive=True)
-
-def compareVersions(versionA:str, versionB:str, direction:bool=None, inclusive:bool=None) -> bool:
-    """
-    Description:
-        Compares two versions as strings to find greater/less than 
-    ---
-    Arguments:
-        - versionA : String <>
-        - versionB : String <>
-        - direction : Boolean <None>
-            - None: don't check greater or less than, just check equality
-            - True: check if A is greater than B
-            - False: check if A is smaller than B
-        - inclusive : Boolean <None>
-            - None: sets to False or checks equality or set to false if direction is set
-            - True: inclusive check
-            - False: non-inclusive check
-    ---
-    Returns:
-        - Boolean true or false based on the provided conditions
-        - Providing only versions and no conditions checks for equality
-    """
-    
-    # casts the items of a list to an int (from int or string) and check for invalid characters
-    def castItemsToInt(lst:list):
-        validCharactersPattern = r"[^\d.]" # numbers and period
-
-        i = 0
-        while (i < len(lst)):
-            if isinstance(lst[i], int): pass # if int, do nothing
-            elif isinstance(lst[i], str): # if string, cast to int
-                # remove invalids
-                lst[i] = re.sub(validCharactersPattern, "", lst[i])
-                
-                try: # try to cast
-                    lst[i] = int(lst[i])
-                except ValueError or TypeError: # casting error
-                    Global.endProgram(f"can't cast value {lst[i]} in lst version list to int") 
-            else:
-                # not a string or int
-                Global.endProgram(f"value ({lst[i]}) in version list isn't a string or int")
-            i += 1
-        return lst
-    
-    # longest value variable for later
-    longestVersionLength = 0
-
-    # make sure inputs are strings or string/int lists
-    j = 0
-    versions = [versionA, versionB]
-    while (j < len(versions)):
-        # check for string/int list tuple
-        if (isinstance(versions[j], tuple)):
-            versions[j] = castItemsToInt(list(versions[j]))
-        elif isinstance(versions[j], list): # cast to int
-            versions[j] = castItemsToInt(versions[j])
-        # check for string
-        elif isinstance(versions[j], str): # create list and cast to int
-            lst = str.split(versions[j], ".")
-            versions[j] = castItemsToInt(lst)
-        else:
-            Global.endProgram("versionA or versionB isn't a string")
-
-        # update longestVersionLength
-        currLength = len(versions[j])
-        if (currLength > longestVersionLength):
-            longestVersionLength = currLength
-
-        # increment
-        j += 1
-
-    # add 0's to each list if needed
-    i = 0
-    while (i < len(versions)):
-        currLength = len(versions[i])
-        if (currLength < longestVersionLength):
-            extensionLength = longestVersionLength - currLength
-            versions[i].extend([0] * extensionLength)
-        i += 1
-
-    # set versions list values back to the versionA/B variables
-    versionA = versions[0]
-    versionB = versions[1]
-
-    # function to check an list of version numbers
-    def compareLists(listA:list, listB:list, direction:bool, inclusive:bool) -> bool:
-        # function to check a specific value version number
-        def compareValues(valueA:int, valueB:int, direction:bool) -> bool:
-            if (valueA == valueB): return None # found equal
-            # check greater/less than based on direction
-            if (direction == True):
-                return (valueA > valueB)
-            elif (direction == False):
-                return (valueA < valueB)
-
-        # go through the values of each list and compare
-        for valueA, valueB in zip(listA, listB): # pairs the list for iteration
-            condition = compareValues(valueA, valueB, direction) # doesn't check inclusion
-            if (condition != None): # this means the current majority version already meets the condition and no further comparison is needed
-                return condition
-            # the values dont yet meet the condition (they are equal)
-        # all values were equal 
-        return inclusive # return inclusion, since we know the status of "if they are equal" we just now need to say whether or not we wanted to see that as true or false
-
-    # change inclusive (to false) if it's none and direction is set
-    if (inclusive == None) and (direction != None): 
-        inclusive = False 
-
-    # actually compare them
-    if (direction == None): # check equality (as long as parameters are right)
-        if (inclusive != None): # can't set inclusive if direction is None
-            raise ValueError("'inclusive' can't be set if 'direction' is set to None")
-        else: # find equality
-            return (versionA == versionB)
-    else: # non-equal comparison (doesn't mean they actually aren't equal, just to check for it)
-        return compareLists(versionA, versionB, direction, inclusive)
+    return compare_versions(Global.inputVersion, [1, majorUpdate, minorVersion, subVersion], direction, inclusive=True)
 
 def grayscale(image, enhanceBrightness=False):
     """
