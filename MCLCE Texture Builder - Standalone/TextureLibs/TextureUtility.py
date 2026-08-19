@@ -172,6 +172,7 @@ def getImageNoOpacity(image, *, doZeroDetection=False):
     Returns:
         - Image
     """
+    image = Image.convert(image, "RGBA")
     i = 0
     while i < image.width:
         j = 0
