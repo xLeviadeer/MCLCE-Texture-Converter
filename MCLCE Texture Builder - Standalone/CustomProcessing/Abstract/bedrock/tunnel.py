@@ -26,9 +26,9 @@ class tunnel(Custom.Function):
 
         # find purple
         purple = []
-        purple.extend([wiiuPixel[0] / linkPixel[0]])
-        purple.extend([wiiuPixel[1] / linkPixel[1]])
-        purple.extend([wiiuPixel[2] / linkPixel[2]])
+        purple.append(wiiuPixel[0] / linkPixel[0] if linkPixel[0] != 0 else 0)
+        purple.append(wiiuPixel[1] / linkPixel[1] if linkPixel[1] != 0 else 0)
+        purple.append(wiiuPixel[2] / linkPixel[2] if linkPixel[2] != 0 else 0)
         purple = tuple(purple)
         
         return purple
