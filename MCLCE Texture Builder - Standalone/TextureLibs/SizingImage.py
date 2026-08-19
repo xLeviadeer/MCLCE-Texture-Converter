@@ -1,13 +1,37 @@
-from PIL import Image, ImageFilter
+from __future__ import annotations
+
+from typing import Literal, IO, Self, cast
 import math
 import warnings
+from collections.abc import Sequence
 
-# what functions change in this file?
-    # new
-    # crop
-    # resize
-    # paste
-    # alpha_composite
+from PIL import (
+    Image, 
+    ImageFilter,
+    ImageOps,
+    _imaging as core
+)
+from PIL.Image import (
+    Resampling,
+    Transpose,
+    Transform,
+    Dither,
+    Palette
+)
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from PIL._typing import (
+        StrOrBytesPath,
+        NumpyArray
+    )
+
+# changed
+# find for any relative imports and fixed those `import .`
+# find for any self calls and then manually checked which would need to set doResize = False `self.(new|open|crop|resize|paste|alpha_composite|show|rotate|convert|copy)`
+# check through everything to see what calls ask for `Image.` module level methods and bound them
+# change type hints of `Image.Image` to `Self`
+# change `Image.` calls to `Image.Image` calls
 
 processingSize = 16 # an integer (default 16)
 baseSize = 16
@@ -95,12 +119,18 @@ def verifyPowerOfTwo(num, variableName=None, *, overrideMinimum=16):
 
 class SizingImage():
     def __init__(self, img): # constructor
+        super().__init__()
         self._img=img
     def __getattr__(self,key): # get attributes
         if key == '_img':
             raise AttributeError()
         return getattr(self._img,key)
-    def new(mode, size, color=0, doResize=True):
+    def new(
+        mode: str,
+        size: tuple[int, int] | list[int],
+        color: float | tuple[float, ...] | str | None = 0,
+        doResize: bool = True
+    ) -> Self:
         # changes
         if doResize == True:
             size = convertTuple(size)
@@ -108,53 +138,57 @@ class SizingImage():
         # NO CHANGE
         """
         Creates a new image with the given mode and size.
-
+    
         :param mode: The mode to use for the new image. See:
-        :ref:`concept-modes`.
+            :ref:`concept-modes`.
         :param size: A 2-tuple, containing (width, height) in pixels.
-        :param color: What color to use for the image.  Default is black.
-        If given, this should be a single integer or floating point value
-        for single-band modes, and a tuple for multi-band modes (one value
-        per band).  When creating RGB or HSV images, you can also use color
-        strings as supported by the ImageColor module.  If the color is
-        None, the image is not initialised.
+        :param color: What color to use for the image. Default is black. If given,
+            this should be a single integer or floating point value for single-band
+            modes, and a tuple for multi-band modes (one value per band). When
+            creating RGB or HSV images, you can also use color strings as supported
+            by the ImageColor module. See :ref:`colors` for more information. If the
+            color is None, the image is not initialised.
         :returns: An :py:class:`~PIL.Image.Image` object.
         """
         
         return SizingImage(Image.new(mode, size, color))
-    def open(fp, mode="r", formats=None):
+    def open(
+        fp: StrOrBytesPath | IO[bytes],
+        mode: Literal["r"] = "r",
+        formats: list[str] | tuple[str, ...] | None = None,
+    ) -> Self:
         # NO CHANGE
         """
         Opens and identifies the given image file.
-
+    
         This is a lazy operation; this function identifies the file, but
         the file remains open and the actual image data is not read from
         the file until you try to process the data (or call the
         :py:meth:`~PIL.Image.Image.load` method).  See
         :py:func:`~PIL.Image.new`. See :ref:`file-handling`.
-
-        :param fp: A filename (string), pathlib.Path object or a file object.
-        The file object must implement ``file.read``,
-        ``file.seek``, and ``file.tell`` methods,
-        and be opened in binary mode. The file object will also seek to zero
-        before reading.
+    
+        :param fp: A filename (string), os.PathLike object or a file object.
+            The file object must implement ``file.read``,
+            ``file.seek``, and ``file.tell`` methods,
+            and be opened in binary mode. The file object will also seek to zero
+            before reading.
         :param mode: The mode.  If given, this argument must be "r".
         :param formats: A list or tuple of formats to attempt to load the file in.
-        This can be used to restrict the set of formats checked.
-        Pass ``None`` to try all supported formats. You can print the set of
-        available formats by running ``python3 -m PIL`` or using
-        the :py:func:`PIL.features.pilinfo` function.
+            This can be used to restrict the set of formats checked.
+            Pass ``None`` to try all supported formats. You can print the set of
+            available formats by running ``python3 -m PIL`` or using
+            the :py:func:`PIL.features.pilinfo` function.
         :returns: An :py:class:`~PIL.Image.Image` object.
         :exception FileNotFoundError: If the file cannot be found.
         :exception PIL.UnidentifiedImageError: If the image cannot be opened and
-        identified.
+            identified.
         :exception ValueError: If the ``mode`` is not "r", or if a ``StringIO``
-        instance is used for ``fp``.
+            instance is used for ``fp``.
         :exception TypeError: If ``formats`` is not ``None``, a list or a tuple.
         """
         
         return SizingImage(Image.open(fp, mode, formats))
-    def crop(self, box=None, doResize=True):
+    def crop(self, box: tuple[float, float, float, float] | None = None, doResize: bool = True) -> Self:
         # changes
         if doResize == True:
             box = convertTuple(box)
@@ -184,7 +218,14 @@ class SizingImage():
 
         self.load()
         return SizingImage(self._new(self._crop(self.im, box)))
-    def resize(self, size, resample=Image.NEAREST, box=None, reducing_gap=None, doResize=True):
+    def resize(
+        self,
+        size: tuple[int, int] | list[int] | NumpyArray,
+        resample: int | None = None,
+        box: tuple[float, float, float, float] | None = None,
+        reducing_gap: float | None = None,
+        doResize: bool = True
+    ) -> Self:
         # changes
             # sampling now defaults to NEAREST
         if doResize == True:
@@ -194,98 +235,92 @@ class SizingImage():
         """
         Returns a resized copy of this image.
 
-        :param size: The requested size in pixels, as a 2-tuple:
-           (width, height).
+        :param size: The requested size in pixels, as a tuple or array:
+            (width, height).
         :param resample: An optional resampling filter.  This can be
-           one of :py:data:`Resampling.NEAREST`, :py:data:`Resampling.BOX`,
-           :py:data:`Resampling.BILINEAR`, :py:data:`Resampling.HAMMING`,
-           :py:data:`Resampling.BICUBIC` or :py:data:`Resampling.LANCZOS`.
-           If the image has mode "1" or "P", it is always set to
-           :py:data:`Resampling.NEAREST`. If the image mode specifies a number
-           of bits, such as "I;16", then the default filter is
-           :py:data:`Resampling.NEAREST`. Otherwise, the default filter is
-           :py:data:`Resampling.BICUBIC`. See: :ref:`concept-filters`.
+            one of :py:data:`Resampling.NEAREST`, :py:data:`Resampling.BOX`,
+            :py:data:`Resampling.BILINEAR`, :py:data:`Resampling.HAMMING`,
+            :py:data:`Resampling.BICUBIC` or :py:data:`Resampling.LANCZOS`.
+            If the image has mode "1" or "P", it is always set to
+            :py:data:`Resampling.NEAREST`. Otherwise, the default filter is
+            :py:data:`Resampling.BICUBIC`. See: :ref:`concept-filters`.
         :param box: An optional 4-tuple of floats providing
-           the source image region to be scaled.
-           The values must be within (0, 0, width, height) rectangle.
-           If omitted or None, the entire source is used.
+            the source image region to be scaled.
+            The values must be within (0, 0, width, height) rectangle.
+            If omitted or None, the entire source is used.
         :param reducing_gap: Apply optimization by resizing the image
-           in two steps. First, reducing the image by integer times
-           using :py:meth:`~PIL.Image.Image.reduce`.
-           Second, resizing using regular resampling. The last step
-           changes size no less than by ``reducing_gap`` times.
-           ``reducing_gap`` may be None (no first step is performed)
-           or should be greater than 1.0. The bigger ``reducing_gap``,
-           the closer the result to the fair resampling.
-           The smaller ``reducing_gap``, the faster resizing.
-           With ``reducing_gap`` greater or equal to 3.0, the result is
-           indistinguishable from fair resampling in most cases.
-           The default value is None (no optimization).
+            in two steps. First, reducing the image by integer times
+            using :py:meth:`~PIL.Image.Image.reduce`.
+            Second, resizing using regular resampling. The last step
+            changes size no less than by ``reducing_gap`` times.
+            ``reducing_gap`` may be None (no first step is performed)
+            or should be greater than 1.0. The bigger ``reducing_gap``,
+            the closer the result to the fair resampling.
+            The smaller ``reducing_gap``, the faster resizing.
+            With ``reducing_gap`` greater or equal to 3.0, the result is
+            indistinguishable from fair resampling in most cases.
+            The default value is None (no optimization).
         :returns: An :py:class:`~PIL.Image.Image` object.
         """
 
         if resample is None:
-            type_special = ";" in self.mode
-            resample = Image.Resampling.NEAREST if type_special else Image.Resampling.BICUBIC
+            resample = Resampling.BICUBIC
         elif resample not in (
-            Image.Resampling.NEAREST,
-            Image.Resampling.BILINEAR,
-            Image.Resampling.BICUBIC,
-            Image.Resampling.LANCZOS,
-            Image.Resampling.BOX,
-            Image.Resampling.HAMMING,
+            Resampling.NEAREST,
+            Resampling.BILINEAR,
+            Resampling.BICUBIC,
+            Resampling.LANCZOS,
+            Resampling.BOX,
+            Resampling.HAMMING,
         ):
             msg = f"Unknown resampling filter ({resample})."
 
             filters = [
                 f"{filter[1]} ({filter[0]})"
                 for filter in (
-                    (Image.Resampling.NEAREST, "Image.Resampling.NEAREST"),
-                    (Image.Resampling.LANCZOS, "Image.Resampling.LANCZOS"),
-                    (Image.Resampling.BILINEAR, "Image.Resampling.BILINEAR"),
-                    (Image.Resampling.BICUBIC, "Image.Resampling.BICUBIC"),
-                    (Image.Resampling.BOX, "Image.Resampling.BOX"),
-                    (Image.Resampling.HAMMING, "Image.Resampling.HAMMING"),
+                    (Resampling.NEAREST, "Image.Resampling.NEAREST"),
+                    (Resampling.LANCZOS, "Image.Resampling.LANCZOS"),
+                    (Resampling.BILINEAR, "Image.Resampling.BILINEAR"),
+                    (Resampling.BICUBIC, "Image.Resampling.BICUBIC"),
+                    (Resampling.BOX, "Image.Resampling.BOX"),
+                    (Resampling.HAMMING, "Image.Resampling.HAMMING"),
                 )
             ]
-            msg += " Use " + ", ".join(filters[:-1]) + " or " + filters[-1]
+            msg += f" Use {', '.join(filters[:-1])} or {filters[-1]}"
             raise ValueError(msg)
 
         if reducing_gap is not None and reducing_gap < 1.0:
             msg = "reducing_gap must be 1.0 or greater"
             raise ValueError(msg)
 
-        size = tuple(size)
-
-        self.load()
         if box is None:
             box = (0, 0) + self.size
-        else:
-            box = tuple(box)
 
+        size = tuple(size)
         if self.size == size and box == (0, 0) + self.size:
             return SizingImage(self.copy())
 
         if self.mode in ("1", "P"):
-            resample = Image.Resampling.NEAREST
+            resample = Resampling.NEAREST
 
-        if self.mode in ["LA", "RGBA"] and resample != Image.Resampling.NEAREST:
+        if self.mode in ["LA", "RGBA"] and resample != Resampling.NEAREST:
             im = self.convert({"LA": "La", "RGBA": "RGBa"}[self.mode])
-            im = im.resize(size, resample, box, doResize=False)
+            im = im.resize(size, resample, box)
             return SizingImage(im.convert(self.mode))
 
         self.load()
 
-        if reducing_gap is not None and resample != Image.Resampling.NEAREST:
+        if reducing_gap is not None and resample != Resampling.NEAREST:
             factor_x = int((box[2] - box[0]) / size[0] / reducing_gap) or 1
             factor_y = int((box[3] - box[1]) / size[1] / reducing_gap) or 1
             if factor_x > 1 or factor_y > 1:
-                reduce_box = self._get_safe_box(size, resample, box)
+                reduce_box = self._get_safe_box(size, cast(Resampling, resample), box)
                 factor = (factor_x, factor_y)
-                if callable(self.reduce):
-                    self = self.reduce(factor, box=reduce_box)
-                else:
-                    self = Image.reduce(self, factor, box=reduce_box)
+                self = (
+                    self.reduce(factor, box=reduce_box)
+                    if callable(self.reduce)
+                    else Image.Image.reduce(self, factor, box=reduce_box)
+                )
                 box = (
                     (box[0] - reduce_box[0]) / factor_x,
                     (box[1] - reduce_box[1]) / factor_y,
@@ -293,8 +328,22 @@ class SizingImage():
                     (box[3] - reduce_box[1]) / factor_y,
                 )
 
-        return SizingImage(self._new(self.im.resize(size, resample, box)))
-    def paste(self, im, box=None, mask=None, mode="RGBA", doResize=True):
+        if self.size[1] > self.size[0] * 100 and size[1] < self.size[1]:
+            im = self.im.resize(
+                (self.size[0], size[1]), resample, (0, box[1], self.size[0], box[3])
+            )
+            im = im.resize(size, resample, (box[0], 0, box[2], size[1]))
+        else:
+            im = self.im.resize(size, resample, box)
+        return SizingImage(self._new(im))
+    def paste(
+        self,
+        im: Image.Image | str | float | tuple[float, ...],
+        box: Image.Image | tuple[int, int, int, int] | tuple[int, int] | None = None,
+        mask: Image.Image | None = None,
+        mode: str = "RGBA",
+        doResize: bool = True
+    ) -> None:
         # changes
         if (doResize == True) and (box != None):
             box = convertTuple(box)
@@ -315,9 +364,10 @@ class SizingImage():
         details).
 
         Instead of an image, the source can be a integer or tuple
-        containing pixel values.  The method then fills the region
-        with the given color.  When creating RGB images, you can
-        also use color strings as supported by the ImageColor module.
+        containing pixel values. The method then fills the region
+        with the given color. When creating RGB images, you can
+        also use color strings as supported by the ImageColor module. See
+        :ref:`colors` for more information.
 
         If a mask is given, this method updates only the regions
         indicated by the mask. You can use either "1", "L", "LA", "RGBA"
@@ -330,19 +380,22 @@ class SizingImage():
         See :py:meth:`~PIL.Image.Image.alpha_composite` if you want to
         combine images with respect to their alpha channels.
 
-        :param im: Source image or pixel value (integer or tuple).
+        :param im: Source image or pixel value (integer, float or tuple).
         :param box: An optional 4-tuple giving the region to paste into.
-           If a 2-tuple is used instead, it's treated as the upper left
-           corner.  If omitted or None, the source is pasted into the
-           upper left corner.
+            If a 2-tuple is used instead, it's treated as the upper left
+            corner.  If omitted or None, the source is pasted into the
+            upper left corner.
 
-           If an image is given as the second argument and there is no
-           third, the box defaults to (0, 0), and the second argument
-           is interpreted as a mask image.
+            If an image is given as the second argument and there is no
+            third, the box defaults to (0, 0), and the second argument
+            is interpreted as a mask image.
         :param mask: An optional mask image.
         """
 
-        if Image.isImageType(box) and mask is None:
+        if isinstance(box, Image.Image) or isinstance(box, SizingImage):
+            if mask is not None:
+                msg = "If using second argument as mask, third argument must be None"
+                raise ValueError(msg)
             # abbreviated paste(im, mask) syntax
             mask = box
             box = None
@@ -352,9 +405,9 @@ class SizingImage():
 
         if len(box) == 2:
             # upper left corner given; get size from image or mask
-            if Image.isImageType(im):
+            if isinstance(im, Image.Image) or isinstance(im, SizingImage):
                 size = im.size
-            elif Image.isImageType(mask):
+            elif isinstance(mask, Image.Image) or isinstance(mask, SizingImage):
                 size = mask.size
             else:
                 # FIXME: use self.size here?
@@ -362,27 +415,36 @@ class SizingImage():
                 raise ValueError(msg)
             box += (box[0] + size[0], box[1] + size[1])
 
+        source: core.ImagingCore | str | float | tuple[float, ...]
         if isinstance(im, str):
-            from .. import ImageColor
+            from PIL import ImageColor # CHANGED
 
-            im = ImageColor.getcolor(im, self.mode)
-
-        elif Image.isImageType(im):
+            source = ImageColor.getcolor(im, self.mode)
+        elif isinstance(im, Image.Image) or isinstance(im, SizingImage):
             im.load()
             if self.mode != im.mode:
                 if self.mode != "RGB" or im.mode not in ("LA", "RGBA", "RGBa"):
                     # should use an adapter for this!
                     im = im.convert(self.mode)
-            im = im.im
+            source = im.im
+        else:
+            source = im
 
         self._ensure_mutable()
 
         if mask:
             mask.load()
-            self.im.paste(im, box, mask.im)
+            self.im.paste(source, box, mask.im)
         else:
-            self.im.paste(im, box)
-    def alpha_composite(self, im, dest=(0, 0), source=(0, 0), mode="RGBA", doResize=True):
+            self.im.paste(source, box)
+    def alpha_composite(
+        self, 
+        im: Self, 
+        dest: Sequence[int] = (0, 0), 
+        source: Sequence[int] = (0, 0),
+        mode: str = "RGBA",
+        doResize: bool = True
+    ) -> None:
         # changes
         if doResize == True:
             dest = convertTuple(dest)
@@ -397,41 +459,44 @@ class SizingImage():
 
         :param im: image to composite over this one
         :param dest: Optional 2 tuple (left, top) specifying the upper
-          left corner in this (destination) image.
+            left corner in this (destination) image.
         :param source: Optional 2 (left, top) tuple for the upper left
-          corner in the overlay source image, or 4 tuple (left, top, right,
-          bottom) for the bounds of the source rectangle
+            corner in the overlay source image, or 4 tuple (left, top, right,
+            bottom) for the bounds of the source rectangle
 
         Performance Note: Not currently implemented in-place in the core layer.
         """
 
         if not isinstance(source, (list, tuple)):
-            msg = "Source must be a tuple"
+            msg = "Source must be a list or tuple"
             raise ValueError(msg)
         if not isinstance(dest, (list, tuple)):
-            msg = "Destination must be a tuple"
+            msg = "Destination must be a list or tuple"
             raise ValueError(msg)
-        if len(source) not in (2, 4):
-            msg = "Source must be a 2 or 4-tuple"
+
+        if len(source) == 4:
+            overlay_crop_box = tuple(source)
+        elif len(source) == 2:
+            overlay_crop_box = tuple(source) + im.size
+        else:
+            msg = "Source must be a sequence of length 2 or 4"
             raise ValueError(msg)
+
         if not len(dest) == 2:
-            msg = "Destination must be a 2-tuple"
+            msg = "Destination must be a sequence of length 2"
             raise ValueError(msg)
         if min(source) < 0:
             msg = "Source must be non-negative"
             raise ValueError(msg)
 
-        if len(source) == 2:
-            source = source + im.size
-
-        # over image, crop if it's not the whole thing.
-        if source == (0, 0) + im.size:
+        # over image, crop if it's not the whole image.
+        if overlay_crop_box == (0, 0) + im.size:
             overlay = im
         else:
-            overlay = im.crop(source)
+            overlay = im.crop(overlay_crop_box)
 
         # target for the paste
-        box = dest + (dest[0] + overlay.width, dest[1] + overlay.height)
+        box = tuple(dest) + (dest[0] + overlay.width, dest[1] + overlay.height)
 
         # destination image. don't copy if we're using the whole image.
         if box == (0, 0) + self.size:
@@ -439,9 +504,9 @@ class SizingImage():
         else:
             background = self.crop(box, doResize=False)
 
-        result = Image.alpha_composite(background, overlay)
+        result = Image.alpha_composite(background, overlay) # CHANGED
         self.paste(result, box, doResize=False)
-    def show(self, title=None):
+    def show(self, title: str | None = None) -> None:
         # NO CHANGE
         """
         Displays this image. This method is mainly intended for debugging purposes.
@@ -462,16 +527,18 @@ class SizingImage():
         :param title: Optional title to use for the image window, where possible.
         """
 
-        Image._show(self, title=title)
+        from PIL import ImageShow # CHANGED
+
+        ImageShow.show(self, title)
     def rotate(
         self,
-        angle,
-        resample=Image.Resampling.NEAREST,
-        expand=0,
-        center=None,
-        translate=None,
-        fillcolor=None,
-    ):
+        angle: float,
+        resample: Resampling = Resampling.NEAREST,
+        expand: int | bool = False,
+        center: tuple[float, float] | None = None,
+        translate: tuple[int, int] | None = None,
+        fillcolor: float | tuple[float, ...] | str | None = None,
+    ) -> Self:
         # NO CHANGE
         """
         Returns a rotated copy of this image.  This method returns a
@@ -480,19 +547,19 @@ class SizingImage():
 
         :param angle: In degrees counter clockwise.
         :param resample: An optional resampling filter.  This can be
-           one of :py:data:`Resampling.NEAREST` (use nearest neighbour),
-           :py:data:`Resampling.BILINEAR` (linear interpolation in a 2x2
-           environment), or :py:data:`Resampling.BICUBIC` (cubic spline
-           interpolation in a 4x4 environment). If omitted, or if the image has
-           mode "1" or "P", it is set to :py:data:`Resampling.NEAREST`.
-           See :ref:`concept-filters`.
+            one of :py:data:`Resampling.NEAREST` (use nearest neighbour),
+            :py:data:`Resampling.BILINEAR` (linear interpolation in a 2x2
+            environment), or :py:data:`Resampling.BICUBIC` (cubic spline
+            interpolation in a 4x4 environment). If omitted, or if the image has
+            mode "1" or "P", it is set to :py:data:`Resampling.NEAREST`.
+            See :ref:`concept-filters`.
         :param expand: Optional expansion flag.  If true, expands the output
-           image to make it large enough to hold the entire rotated image.
-           If false or omitted, make the output image the same size as the
-           input image.  Note that the expand flag assumes rotation around
-           the center and no translation.
+            image to make it large enough to hold the entire rotated image.
+            If false or omitted, make the output image the same size as the
+            input image.  Note that the expand flag assumes rotation around
+            the center and no translation.
         :param center: Optional center of rotation (a 2-tuple).  Origin is
-           the upper left corner.  Default is the center of the image.
+            the upper left corner.  Default is the center of the image.
         :param translate: An optional post-rotate translation (a 2-tuple).
         :param fillcolor: An optional color for area outside the rotated image.
         :returns: An :py:class:`~PIL.Image.Image` object.
@@ -506,11 +573,11 @@ class SizingImage():
             if angle == 0:
                 return SizingImage(self.copy())
             if angle == 180:
-                return SizingImage(self.transpose(Image.Transpose.ROTATE_180))
+                return SizingImage(self.transpose(Transpose.ROTATE_180))
             if angle in (90, 270) and (expand or self.width == self.height):
                 return SizingImage(self.transpose(
-                    Image.Transpose.ROTATE_90 if angle == 90 else Image.Transpose.ROTATE_270)
-                )
+                    Transpose.ROTATE_90 if angle == 90 else Transpose.ROTATE_270
+                ))
 
         # Calculate the affine matrix.  Note that this is the reverse
         # transformation (from destination image to source) because we
@@ -537,10 +604,7 @@ class SizingImage():
         else:
             post_trans = translate
         if center is None:
-            # FIXME These should be rounded to ints?
-            rotn_center = (w / 2.0, h / 2.0)
-        else:
-            rotn_center = center
+            center = (w / 2, h / 2)
 
         angle = -math.radians(angle)
         matrix = [
@@ -552,24 +616,24 @@ class SizingImage():
             0.0,
         ]
 
-        def transform(x, y, matrix):
-            (a, b, c, d, e, f) = matrix
+        def transform(x: float, y: float, matrix: list[float]) -> tuple[float, float]:
+            a, b, c, d, e, f = matrix
             return a * x + b * y + c, d * x + e * y + f
 
         matrix[2], matrix[5] = transform(
-            -rotn_center[0] - post_trans[0], -rotn_center[1] - post_trans[1], matrix
+            -center[0] - post_trans[0], -center[1] - post_trans[1], matrix
         )
-        matrix[2] += rotn_center[0]
-        matrix[5] += rotn_center[1]
+        matrix[2] += center[0]
+        matrix[5] += center[1]
 
         if expand:
             # calculate output size
             xx = []
             yy = []
             for x, y in ((0, 0), (w, 0), (w, h), (0, h)):
-                x, y = transform(x, y, matrix)
-                xx.append(x)
-                yy.append(y)
+                transformed_x, transformed_y = transform(x, y, matrix)
+                xx.append(transformed_x)
+                yy.append(transformed_y)
             nw = math.ceil(max(xx)) - math.floor(min(xx))
             nh = math.ceil(max(yy)) - math.floor(min(yy))
 
@@ -580,11 +644,16 @@ class SizingImage():
             w, h = nw, nh
 
         return SizingImage(self.transform(
-            (w, h), Image.Transform.AFFINE, matrix, resample, fillcolor=fillcolor
+            (w, h), Transform.AFFINE, matrix, resample, fillcolor=fillcolor
         ))
     def convert(
-        self, mode=None, matrix=None, dither=None, palette=Image.Palette.WEB, colors=256
-    ):
+        self,
+        mode: str | None = None,
+        matrix: tuple[float, ...] | None = None,
+        dither: Dither | None = None,
+        palette: Palette = Palette.WEB,
+        colors: int = 256,
+    ) -> Self:
         # NO CHANGE
         """
         Returns a converted copy of this image. For the "P" mode, this
@@ -592,16 +661,15 @@ class SizingImage():
         omitted, a mode is chosen so that all information in the image
         and the palette can be represented without a palette.
 
-        The current version supports all possible conversions between
-        "L", "RGB" and "CMYK". The ``matrix`` argument only supports "L"
-        and "RGB".
+        This supports all possible conversions between "L", "RGB" and "CMYK". The
+        ``matrix`` argument only supports "L" and "RGB".
 
-        When translating a color image to greyscale (mode "L"),
+        When translating a color image to grayscale (mode "L"),
         the library uses the ITU-R 601-2 luma transform::
 
             L = R * 299/1000 + G * 587/1000 + B * 114/1000
 
-        The default method of converting a greyscale ("L") or "RGB"
+        The default method of converting a grayscale ("L") or "RGB"
         image into a bilevel (mode "1") image uses Floyd-Steinberg
         dither to approximate the original image luminosity levels. If
         dither is ``None``, all values larger than 127 are set to 255 (white),
@@ -617,22 +685,22 @@ class SizingImage():
 
         :param mode: The requested mode. See: :ref:`concept-modes`.
         :param matrix: An optional conversion matrix.  If given, this
-           should be 4- or 12-tuple containing floating point values.
+            should be 4- or 12-tuple containing floating point values.
         :param dither: Dithering method, used when converting from
-           mode "RGB" to "P" or from "RGB" or "L" to "1".
-           Available methods are :data:`Dither.NONE` or :data:`Dither.FLOYDSTEINBERG`
-           (default). Note that this is not used when ``matrix`` is supplied.
+            mode "RGB" to "P" or from "RGB" or "L" to "1".
+            Available methods are :data:`Dither.NONE` or :data:`Dither.FLOYDSTEINBERG`
+            (default). Note that this is not used when ``matrix`` is supplied.
         :param palette: Palette to use when converting from mode "RGB"
-           to "P".  Available palettes are :data:`Palette.WEB` or
-           :data:`Palette.ADAPTIVE`.
+            to "P".  Available palettes are :data:`Palette.WEB` or
+            :data:`Palette.ADAPTIVE`.
         :param colors: Number of colors to use for the :data:`Palette.ADAPTIVE`
-           palette. Defaults to 256.
+            palette. Defaults to 256.
         :rtype: :py:class:`~PIL.Image.Image`
         :returns: An :py:class:`~PIL.Image.Image` object.
         """
 
         self.load()
-
+        
         has_transparency = "transparency" in self.info
         if not mode and self.mode == "P":
             # determine default mode
@@ -655,29 +723,37 @@ class SizingImage():
             if has_transparency and self.im.bands == 3:
                 transparency = new_im.info["transparency"]
 
-                def convert_transparency(m, v):
-                    v = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3] * 0.5
-                    return max(0, min(255, int(v)))
+                def convert_transparency(
+                    m: tuple[float, ...], v: tuple[int, int, int]
+                ) -> int:
+                    value = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3] * 0.5
+                    return max(0, min(255, int(value)))
 
                 if mode == "L":
                     transparency = convert_transparency(matrix, transparency)
                 elif len(mode) == 3:
                     transparency = tuple(
                         convert_transparency(matrix[i * 4 : i * 4 + 4], transparency)
-                        for i in range(0, len(transparency))
+                        for i in range(len(transparency))
                     )
                 new_im.info["transparency"] = transparency
             return SizingImage(new_im)
 
-        if mode == "P" and self.mode == "RGBA":
-            return SizingImage(self.quantize(colors))
+        if self.mode == "RGBA":
+            if mode == "P":
+                return SizingImage(self.quantize(colors))
+            elif mode == "PA":
+                r, g, b, a = self.split()
+                rgb = Image.merge("RGB", (r, g, b)) # CHANGED
+                p = rgb.quantize(colors)
+                return SizingImage(Image.merge("PA", (p, a))) # CHANGED
 
         trns = None
         delete_trns = False
         # transparency handling
         if has_transparency:
-            if (self.mode in ("1", "L", "I") and mode in ("LA", "RGBA")) or (
-                self.mode == "RGB" and mode == "RGBA"
+            if (self.mode in ("1", "L", "I", "I;16") and mode in ("LA", "RGBA")) or (
+                self.mode == "RGB" and mode in ("La", "LA", "RGBa", "RGBA")
             ):
                 # Use transparent conversion to promote from transparent
                 # color to an alpha channel.
@@ -698,11 +774,13 @@ class SizingImage():
                 else:
                     # get the new transparency color.
                     # use existing conversions
-                    trns_im = Image.new(self.mode, (1, 1))
+                    trns_im = SizingImage(Image.new(self.mode, (1, 1))) # CHANGED
                     if self.mode == "P":
-                        trns_im.putpalette(self.palette)
+                        assert self.palette is not None
+                        trns_im.putpalette(self.palette, self.palette.mode)
                         if isinstance(t, tuple):
                             err = "Couldn't allocate a palette color for transparency"
+                            assert trns_im.palette is not None
                             try:
                                 t = trns_im.palette.getcolor(t, self)
                             except ValueError as e:
@@ -737,10 +815,10 @@ class SizingImage():
                     msg = "Transparency for P mode should be bytes or int"
                     raise ValueError(msg)
 
-        if mode == "P" and palette == Image.Palette.ADAPTIVE:
+        if mode == "P" and palette == Palette.ADAPTIVE:
             im = self.im.quantize(colors)
             new_im = self._new(im)
-            from .. import ImagePalette
+            from PIL import ImagePalette
 
             new_im.palette = ImagePalette.ImagePalette(
                 "RGB", new_im.im.getpalette("RGB")
@@ -751,7 +829,10 @@ class SizingImage():
                 del new_im.info["transparency"]
             if trns is not None:
                 try:
-                    new_im.info["transparency"] = new_im.palette.getcolor(trns, new_im)
+                    new_im.info["transparency"] = new_im.palette.getcolor(
+                        cast(tuple[int, ...], trns),  # trns was converted to RGB
+                        new_im,
+                    )
                 except Exception:
                     # if we can't make a transparent color, don't leave the old
                     # transparency hanging around to mess us up.
@@ -760,28 +841,34 @@ class SizingImage():
             return SizingImage(new_im)
 
         if "LAB" in (self.mode, mode):
-            other_mode = mode if self.mode == "LAB" else self.mode
+            im = self
+            if mode == "LAB":
+                if im.mode not in ("RGB", "RGBA", "RGBX"):
+                    im = im.convert("RGBA")
+                other_mode = im.mode
+            else:
+                other_mode = mode
             if other_mode in ("RGB", "RGBA", "RGBX"):
-                from .. import ImageCms
+                from PIL import ImageCms
 
                 srgb = ImageCms.createProfile("sRGB")
                 lab = ImageCms.createProfile("LAB")
-                profiles = [lab, srgb] if self.mode == "LAB" else [srgb, lab]
+                profiles = [lab, srgb] if im.mode == "LAB" else [srgb, lab]
                 transform = ImageCms.buildTransform(
-                    profiles[0], profiles[1], self.mode, mode
+                    profiles[0], profiles[1], im.mode, mode
                 )
-                return SizingImage(transform.apply(self))
+                return SizingImage(transform.apply(im))
 
         # colorspace conversion
         if dither is None:
-            dither = Image.Dither.FLOYDSTEINBERG
+            dither = Dither.FLOYDSTEINBERG
 
         try:
             im = self.im.convert(mode, dither)
         except ValueError:
             try:
                 # normalize source image and try again
-                modebase = Image.getmodebase(self.mode)
+                modebase = Image.getmodebase(self.mode) # CHANGED
                 if modebase == self.mode:
                     raise
                 im = self.im.convert(modebase)
@@ -791,17 +878,19 @@ class SizingImage():
                 raise ValueError(msg) from e
 
         new_im = self._new(im)
-        if mode == "P" and palette != Image.Palette.ADAPTIVE:
-            from .. import ImagePalette
+        if mode in ("P", "PA") and palette != Palette.ADAPTIVE:
+            from PIL import ImagePalette
 
             new_im.palette = ImagePalette.ImagePalette("RGB", im.getpalette("RGB"))
         if delete_trns:
             # crash fail if we leave a bytes transparency in an rgb/l mode.
             del new_im.info["transparency"]
         if trns is not None:
-            if new_im.mode == "P":
+            if new_im.mode == "P" and new_im.palette:
                 try:
-                    new_im.info["transparency"] = new_im.palette.getcolor(trns, new_im)
+                    new_im.info["transparency"] = new_im.palette.getcolor(
+                        cast(tuple[int, ...], trns), new_im  # trns was converted to RGB
+                    )
                 except ValueError as e:
                     del new_im.info["transparency"]
                     if str(e) != "cannot allocate more than 256 colors":
@@ -813,7 +902,7 @@ class SizingImage():
             else:
                 new_im.info["transparency"] = trns
         return SizingImage(new_im)
-    def copy(self):
+    def copy(self) -> Self:
         """
         Copies this image. Use this method if you wish to paste things
         into an image, but still retain the original.
@@ -842,9 +931,10 @@ class SizingImage():
 
 
 
+
+
 class SizingImageOps():
-    def flip(image):
-        # NO CHANGE
+    def flip(image: Image.Image) -> SizingImage:
         """
         Flip the image vertically (top to bottom).
 
@@ -852,8 +942,7 @@ class SizingImageOps():
         :return: An image.
         """
         return SizingImage(image.transpose(Image.Transpose.FLIP_TOP_BOTTOM))
-    def mirror(image):
-        # NO CHANGE
+    def mirror(image: Image.Image) -> SizingImage:
         """
         Flip image horizontally (left to right).
 

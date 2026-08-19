@@ -7,6 +7,6 @@ dependencies = [
     "xLPyBasics==1.0.0",
     "PySide6==6.11.1",
     "mergedeep>=1.3.4",
-    "Pillow==11.0.0",
+    "Pillow==12.3.0",
     "bidict>=0.23.1"
 ]

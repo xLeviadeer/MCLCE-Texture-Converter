@@ -59,7 +59,7 @@ This program is only supported on Windows. It is expected to not function on Mac
 ## Looking to Develop?
 Access the [Developer Information](Developer%20Information.md) file for more information about development.
 
-## Authors
+## Credits
 created by: xlevia
 
 discord user: `xlevia`
@@ -68,3 +68,8 @@ discord user: `xlevia`
 
 contributors ⌄
 - [Leviah](https://github.com/xLeviadeer)
+
+third party tools ⌄
+- see [third party licenses](THIRD_PARTY_LICENSES.txt)
+- [Pillow](https://github.com/python-pillow/Pillow) ⌄
+    - this project contains modified code from Pillow
