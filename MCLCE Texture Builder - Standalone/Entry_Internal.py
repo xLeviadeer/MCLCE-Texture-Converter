@@ -53,6 +53,10 @@ selections = {
         "replace",
         "skip"
     ],
+    "set": [
+        "UI",
+        "Command"
+    ],
     "versionPatchOptions": [
         "Specified Addition",
         "Dynamic Addition"
@@ -149,7 +153,8 @@ match (selectedMain):
         else:
             Internal.generateVersionPatches()
     case "move assets":
-        Internal.moveAssets()
+        set = selection("set")[1]
+        Internal.moveAssets(set)
     case "generate color signatures":
         Global.inputGame = selection("games")[1]
         type = None

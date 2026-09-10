@@ -27,7 +27,8 @@ MCLCE Texture Builder - Standalone/test_data/
 MCLCE Texture Builder - Standalone/Entry_Test.py
 
 # python builder
-MCLCE Texture Builder - Standalone/python_builder/
+MCLCE Texture Builder - Standalone/builder_ui/
+MCLCE Texture Builder - Standalone/builder_cmd/
 MCLCE Texture Builder - Standalone/releases/
 
 # notes

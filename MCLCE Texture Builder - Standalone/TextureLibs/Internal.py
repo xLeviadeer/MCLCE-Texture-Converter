@@ -1,4 +1,5 @@
 # library of building functions for back-end libraries
+from sys import executable
 
 from xLPyBasics.Dependencies import compare_versions
 from xLPyBasics.JsonAPI import JsonHandler
@@ -20,13 +21,22 @@ from TextureLibs.ConsoleWriter import Writer
 from TextureLibs.ConsoleWriter import WiiULocation
 
 # moves assets to the frontend
-def moveAssets():
+def moveAssets(set):
     """
     Important:
         This function must be executed from within (cd'd in) the "Standalone" folder
     """
 
-    builderPath = Global.getMainWorkingLoc() + "\\python_builder"
+    builderPath = Global.getMainWorkingLoc() + "\\" + (
+        "builder_ui"
+        if set == "UI"
+        else "builder_cmd"
+    )
+    entryName = (
+        "Entry_LaunchUI"
+        if set == "UI"
+        else "Entry_CMD"
+    )
 
     # wipe everything in python_builder first
     if (os.path.isdir(builderPath) == True):
@@ -45,7 +55,7 @@ def moveAssets():
     mainFolder = "CustomProcessing"
 
     # set the intial command
-    command = ["python", "-m", "PyInstaller", "--onedir"]
+    command = [executable, "-m", "PyInstaller", "--onedir"]
     
     # for every type, game, and file name
     for type in ["External", "Abstract", "Versional", "Override"]:
@@ -72,8 +82,8 @@ def moveAssets():
     command.append("--add-data=pyproject.toml;.")
 
     # adds the input location
-    command.append("--windowed") # stop terminal from appearing
-    command.append(f"{Global.getMainWorkingLoc()}\\Entry_LaunchUI.py")
+    if set == "UI": command.append("--windowed") # stop terminal from appearing
+    command.append(f"{Global.getMainWorkingLoc()}\\{entryName}.py")
 
     # print command for testing and run
     print(command)
@@ -127,11 +137,11 @@ def moveAssets():
     # delete and move stuff
     buildPath = Global.getMainWorkingLoc() + "\\build"
     if os.path.exists(buildPath): shutil.rmtree(buildPath)
-    specPath = Global.getMainWorkingLoc() + "\\Entry_LaunchUI.spec"
+    specPath = Global.getMainWorkingLoc() + f"\\{entryName}.spec"
     if os.path.exists(specPath): os.remove(specPath)
-    internalPath = Global.getMainWorkingLoc() + "\\dist\\Entry_LaunchUI\\_internal"
+    internalPath = Global.getMainWorkingLoc() + f"\\dist\\{entryName}\\_internal"
     if os.path.exists(internalPath): shutil.move(internalPath, builderPath)
-    programPath = Global.getMainWorkingLoc() + "\\dist\\Entry_LaunchUI\\Entry_LaunchUI.exe"
+    programPath = Global.getMainWorkingLoc() + f"\\dist\\{entryName}\\{entryName}.exe"
     if os.path.exists(programPath): shutil.move(programPath, builderPath)
     distPath = Global.getMainWorkingLoc() + "\\dist"
     if os.path.exists(distPath): shutil.rmtree(distPath)
