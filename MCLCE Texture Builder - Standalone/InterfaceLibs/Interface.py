@@ -1151,7 +1151,7 @@ def launch() -> None:
     styles_handler = PathHandler(Path(
         "light", 
         extension="css", 
-        prepension=Path.get_meipass(Path.get_meipassp(Path.cwd())))
+        prepension=Path.get_meipass(Path.cwd()))
     )
     styles_text = styles_handler.read()
     app.setStyleSheet(styles_text)
