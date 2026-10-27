@@ -4,7 +4,7 @@ from typing import Self, Callable, Any
 
 from xLPyBasics import Sentinels as df 
 from xLPyBasics.JsonAPI import JsonHandler
-from xLPyBasics.PathAPI import PathHandler, Search, Path as xLPyBasicsPath
+from xLPyBasics.PathAPI import PathHandler, Search, Path
 
 from PySide6.QtCore import (
     Qt,
@@ -43,7 +43,6 @@ from InterfaceLibs import (
     HelpWindow
 )
 import InterfaceLibs.InterfaceUtil as iUt
-from CodeLibs.Path import Path
 from CodeLibs.Threading import create_loop_runner
 from TextureLibs.EntryPoint import EntryPoint
 from CodeLibs import Logger as log
@@ -53,23 +52,23 @@ AUTHOR: str = "xLevia"
 
 # global libs holder
 class GlobalLibs:
-    program_version: str = JsonHandler.read_for(("global", "program_version"), 0)
-    supported_versions: str = JsonHandler.read_for(("global", "supported_versions"), 0)
+    program_version: str = JsonHandler.read_for((Path.cwd(), "global", "program_version"), 0)
+    supported_versions: str = JsonHandler.read_for((Path.cwd(), "global", "supported_versions"), 0)
     
-    input_games = JsonHandler.read_all(("global", "input_games"))
+    input_games = JsonHandler.read_all((Path.cwd(), "global", "input_games"))
 
-    input_versions_bedrock = JsonHandler.read_all(("global", "input_versions_bedrock"))
+    input_versions_bedrock = JsonHandler.read_all((Path.cwd(), "global", "input_versions_bedrock"))
     input_versions_bedrock_plus = [f"{text}+" for text in input_versions_bedrock]
-    input_versions_java = JsonHandler.read_all(("global", "input_versions_java"))
+    input_versions_java = JsonHandler.read_all((Path.cwd(), "global", "input_versions_java"))
     input_versions_java_plus = [f"{text}+" for text in input_versions_java]
 
-    output_structures_nintendo_switch = JsonHandler.read_all(("global", "output_structures_nintendo_switch"))
-    output_structures_ps3 = JsonHandler.read_all(("global", "output_structures_ps3"))
-    output_structures_ps4 = JsonHandler.read_all(("global", "output_structures_ps4"))
-    output_structures_psV = JsonHandler.read_all(("global", "output_structures_psV"))
-    output_structures_wiiu = JsonHandler.read_all(("global", "output_structures_wiiu"))
-    output_structures_xbox_one = JsonHandler.read_all(("global", "output_structures_xbox_one"))
-    output_structures_xbox360 = JsonHandler.read_all(("global", "output_structures_xbox360"))
+    output_structures_nintendo_switch = JsonHandler.read_all((Path.cwd(), "global", "output_structures_nintendo_switch"))
+    output_structures_ps3 = JsonHandler.read_all((Path.cwd(), "global", "output_structures_ps3"))
+    output_structures_ps4 = JsonHandler.read_all((Path.cwd(), "global", "output_structures_ps4"))
+    output_structures_psV = JsonHandler.read_all((Path.cwd(), "global", "output_structures_psV"))
+    output_structures_wiiu = JsonHandler.read_all((Path.cwd(), "global", "output_structures_wiiu"))
+    output_structures_xbox_one = JsonHandler.read_all((Path.cwd(), "global", "output_structures_xbox_one"))
+    output_structures_xbox360 = JsonHandler.read_all((Path.cwd(), "global", "output_structures_xbox360"))
     output_structures_all = [
         *output_structures_nintendo_switch,
         *output_structures_ps3,
@@ -80,10 +79,10 @@ class GlobalLibs:
         *output_structures_xbox360
     ]
 
-    output_drives = JsonHandler.read_all(("global", "output_drives"))
+    output_drives = JsonHandler.read_all((Path.cwd(), "global", "output_drives"))
 
-    modes_size = JsonHandler.read_all(("global", "modes_size"))
-    modes_build = JsonHandler.read_all(("global", "modes_build"))
+    modes_size = JsonHandler.read_all((Path.cwd(), "global", "modes_size"))
+    modes_build = JsonHandler.read_all((Path.cwd(), "global", "modes_build"))
 
 # entry point data holder
 class EntryPointData:
@@ -178,7 +177,7 @@ class MainWindow(QWidget):
 
         self.__log_window: LogWindow = LogWindow(self)
         self.__help_window: HelpWindow = HelpWindow(self)
-        self.__logger_handler = log.LoggerHandler(xLPyBasicsPath("logger"))
+        self.__logger_handler = log.LoggerHandler(Path.cwdp() / "logger")
         
         # set main window settings
         self.setWindowTitle(f"MC LCE Texture Converter {GlobalLibs.program_version}")
@@ -643,11 +642,11 @@ class MainWindow(QWidget):
         path.formalize()
 
         # make type selection based on path ending
-        if (path.getLast().endswith(self.END_MCPACK)):
+        if (path.last.endswith(self.END_MCPACK)):
             self.__entry_data.input_game = self.BEDROCK
             self.__entry_data.input_path_type = self.MCPACK
             self.__input_type.setCurrentText("bedrock .mcpack file")
-        elif (path.getLast().endswith(self.END_ZIP)):
+        elif (path.last.endswith(self.END_ZIP)):
             self.__entry_data.input_game = self.JAVA
             self.__entry_data.input_path_type = self.ZIP
             self.__input_type.setCurrentText("java .zip file")
@@ -661,7 +660,7 @@ class MainWindow(QWidget):
                 self.__input_type.setCurrentText("select a game...")
         
         # set path
-        self.__input_path_text.setText(path.getPath())
+        self.__input_path_text.setText(path.get())
 
     def __clear_input_path(self: Self, msg: str|None = None) -> None:
         self.__input_path_text.setText("")
@@ -670,7 +669,7 @@ class MainWindow(QWidget):
 
     def __prompt_input_path(self: Self) -> None:
         input_str: str = self.__select_file_or_folder(f"Texture Packs (‹folder› *{self.END_MCPACK} *{self.END_ZIP})")
-        if input_str: self.__set_input_path(Path(input_str, isRootDirectory=True))
+        if input_str: self.__set_input_path(Path(input_str))
 
     def __set_input_rejection(self: Self, state: bool) -> None:
             # browse button
@@ -725,7 +724,7 @@ class MainWindow(QWidget):
 
         if mime.hasUrls():
             file_names: list[str] = [url.toLocalFile() for url in mime.urls()]
-            self.__set_input_path(Path(file_names[0], isRootDirectory=True))
+            self.__set_input_path(Path(file_names[0]))
 
     def __handle_click(self: Self, event: QMouseEvent) -> None:
         if self.__reject_input: return # reject all if reject input is enabled
@@ -1018,7 +1017,7 @@ class MainWindow(QWidget):
             if result != QMessageBox.StandardButton.Yes: return
 
             # get files
-            handler = PathHandler(xLPyBasicsPath(self.__entry_data.output_path, prepension=None))
+            handler = PathHandler(Path(self.__entry_data.output_path))
             items: tuple[PathHandler, ...]|df.Type.Empty = handler.read_dir(Search.Settings(
                 include=Search.Include.FilesAndAllDirectories,
                 recursion_depth=Search.MAX_RECURSION
@@ -1149,10 +1148,10 @@ def launch() -> None:
     app = QApplication(sys.argv)
     ICON = QIcon("resources/Re.ico")
     app.setWindowIcon(ICON)
-    styles_handler = PathHandler(xLPyBasicsPath(
+    styles_handler = PathHandler(Path(
         "light", 
         extension="css", 
-        prepension=xLPyBasicsPath.get_meipass(xLPyBasicsPath.cwd()))
+        prepension=Path.get_meipass(Path.cwd()))
     )
     styles_text = styles_handler.read()
     app.setStyleSheet(styles_text)

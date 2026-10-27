@@ -1,4 +1,6 @@
 from xLPyBasics.JsonAPI import JsonHandler
+from xLPyBasics.PathAPI import Path, OMIT
+from CodeLibs.Path import Path as Pather
 
 from builtins import type as typeof
 from CodeLibs import Logger as log
@@ -6,7 +8,6 @@ from CodeLibs.Logger import print
 import TextureLibs.TextureUtility as ut
 import TextureLibs.Global as Global
 from CodeLibs import Logger as log
-from CodeLibs.Path import Path
 from CustomProcessing.Custom import runFunctionFromPath
 from CustomProcessing.Custom import formatName
 from TextureLibs.SupportedTypes import supportedTypes
@@ -18,8 +19,7 @@ from copy import deepcopy
  
 # --- read errors ---
 
-class notFoundException(Exception):
-    pass
+class notFoundException(Exception): pass
 
 class notx16Exception(Exception):
     def __init__(self, message="", image=None):
@@ -60,7 +60,10 @@ def patchForVersion(path, type, wiiuName, doCustomProcessing:bool=True): # does 
     # try to read the version patches
     versionPatches = None
     try:
-        versionPatches = JsonHandler.read_for("\\linking_libraries\\version_patches_" + Global.inputGame, ["versions", Global.inputVersion, type])
+        versionPatches = JsonHandler.read_for(
+            Path.cwdp() / "linking_libraries" / f"version_patches_{Global.inputGame}", 
+            ["versions", Global.inputVersion, type]
+        )
     except:
         # this can occur if the version patch (section, not just one) that's being read for doesn't exist. In this case, the program should continue to run
         # this also always occurs for bedrock since there is no version in bedrock
@@ -88,14 +91,12 @@ def patchForVersion(path, type, wiiuName, doCustomProcessing:bool=True): # does 
         # find prepending path section
         abstractKeyword = "_abstract"
         typeNoAbstract = ut.wiiuType(type if (not type.endswith(abstractKeyword)) else type[:-len(abstractKeyword)])
-        prependingPath = Path(
+        variablePath = Pather(
             Global.inputPath, 
             typeNoAbstract if (typeNoAbstract != "misc") else None, 
+            patchName,
             isRootDirectory=True
-        )
-
-        # combine path
-        variablePath = f"{prependingPath.getPath()}\\{patchName}"
+        ).getPath()
         print(f"found version patch for {wiiuName}", log.PATCHFUNCTION)
     # always return
     return variablePath
@@ -205,10 +206,7 @@ def readLayerLib(wiiuType:str, layerVersion:str, isAbstract:bool, extendingName:
     # try to read the removal layer (sheet)
     try:
         lib = JsonHandler.read_for(
-            Path(
-                "linking_libraries", 
-                f"layer_{layerVersion}"
-            ).getPath(),
+            Path.cwdp() / "linking_libraries", f"layer_{layerVersion}",
             f"{wiiuType}{"_abstract" if (isAbstract == True) else ""}_{extendingName}"
         )
 
@@ -246,7 +244,10 @@ def readWiiuLibFor(type, travel):
             if (type.endswith("s")): type = type[:-1] # if there's and s at the end, get rid of it
             try:
                 # extends the wiiu lib should never be read not the wiiu lib
-                self.wiiuLib = JsonHandler.read_for(f"\\linking_libraries\\wiiu_" + type, deepcopy(travel))
+                self.wiiuLib = JsonHandler.read_for(
+                    Path.cwdp() / "linking_libraries" / f"wiiu_{type}",
+                    travel
+                )
             except Exception as err:
                 print(f"{type}: could not read wiiu -> {travel}", log.DEBUG)
 
@@ -369,7 +370,10 @@ def readWiiuLibFor(type, travel):
 def readLinkLibFor(game, travel):
     content = False
     try:
-        content = JsonHandler.read_for("\\linking_libraries\\base_" + game, travel)
+        content = JsonHandler.read_for(
+            Path.cwdp() / "linking_libraries" / f"base_{game}",
+            travel
+        )
     except Exception as e:
         print(f"{game}: could not read wiiu -> {travel}", log.DEBUG)
     return content
@@ -381,8 +385,8 @@ def readImageSingular(wiiuName, pathExtension, type, expectedSize, doVersionPatc
         ---
         Arguments:
             - wiiuName : String <>
-            - pathExtension : String <>
-                - Path string that extends onto <type>
+            - pathExtension : String⋎Path <>
+                - Path that extends onto <type>
             - type : String <>
             - expectedSize : Tuple <>
                 - Tuple with length of 2
@@ -400,6 +404,10 @@ def readImageSingular(wiiuName, pathExtension, type, expectedSize, doVersionPatc
                 - these errors should either be handled or let pass
                 - if errors are passed, then the entire custom-function will fail and either result in the notFound Image or the WiiU Image
         """
+
+        # normalize path to str
+        if isinstance(pathExtension, Path):
+            pathExtension = pathExtension.get(do_slash_first=False)
 
         # printing
         if (doPrint == True):
@@ -458,7 +466,7 @@ def readMulticolorGrayscale(wiiuName, type, assign, names, namePath, whitePath, 
 
     try: # try to read the white image first and use that
         print("------ White ------") if doPrint == True else None 
-        finalImage = readImageSingular(wiiuName, Path(whitePath).getPath(withFirstSlash=False), type, expectedSize, doPrint=doPrint)
+        finalImage = readImageSingular(wiiuName, Pather(whitePath).getPath(withFirstSlash=False), type, expectedSize, doPrint=doPrint)
     except notFoundException:
         print("------ Colors ------") if doPrint == True else None
         # run each shulker in terms of priority until one is found that can be used
@@ -468,7 +476,7 @@ def readMulticolorGrayscale(wiiuName, type, assign, names, namePath, whitePath, 
         foundNotExpectedOnly = False
         for name in names[::-1]: # in reverse order
             try:
-                finalImage = readImageSingular(wiiuName, Path(f"{namePath}{name}").getPath(withFirstSlash=False), type, expectedSize, doPrint=doPrint)
+                finalImage = readImageSingular(wiiuName, Pather(f"{namePath}{name}").getPath(withFirstSlash=False), type, expectedSize, doPrint=doPrint)
                 noneFound = False
                 foundNotExpectedOnly = False
                 break
@@ -498,7 +506,7 @@ def readWiiuImage(inWiiuAbstract, name, doResize=True):
         case False: addition = None # exists just so what happens is obvious
         case _:
             addition = inWiiuAbstract
-    image = Image.open(Path(Global.getMainWorkingLoc(), "base_textures", addition, name).getPath(withFirstSlash=False))
+    image = Image.open(Pather(Global.getMainWorkingLoc(), "base_textures", addition, name).getPath(withFirstSlash=False))
     
     # multiplier physics
     if (doResize == True):

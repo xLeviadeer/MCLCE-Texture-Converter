@@ -3,7 +3,6 @@ from xLPyBasics.PathAPI import Path
 from xLPyBasics import Dependencies
 if not Dependencies.is_frozen():
     Dependencies.enforce_proj(Path.get_meipassp(Path.cwd()))
-Path.default_prepension.set(Path.cwd())
 
 # multithreading block
 import InterfaceLibs.Interface as Interface

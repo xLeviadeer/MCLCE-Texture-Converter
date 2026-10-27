@@ -6,6 +6,7 @@
     # false will mean the old texture is used
 
 from xLPyBasics.JsonAPI import JsonHandler
+from xLPyBasics.PathAPI import Path as xLPyBasicsPath
 
 from CodeLibs import Logger as log
 from CodeLibs.Logger import print
@@ -233,7 +234,7 @@ def translateForAllTypes():
         if ((wiiuArr != False) and (doOverride != True)):
             # specific arr variables
             wiiuImage = rd.readWiiuImage(False, f"{Global.getLayerGame()}_{wiiuType}")
-            linkArr = JsonHandler.read_for("\\linking_libraries\\Base_" + Global.inputGame, type)
+            linkArr = JsonHandler.read_for((xLPyBasicsPath.cwd(), "linking_libraries", f"Base_{Global.inputGame}"), type)
             currPos = [0, 0]
 
             # constructed image and height
@@ -311,7 +312,7 @@ def translateForAllTypes():
         # --- WiiU Abstract ---
         if (wiiuAbstract != False):
             # specific abstract variables
-            linkAbstract = JsonHandler.read_for("\\linking_libraries\\Base_" + Global.inputGame, type + "_abstract")
+            linkAbstract = JsonHandler.read_for((xLPyBasicsPath.cwd(), "linking_libraries", f"Base_{Global.inputGame}"), f"{type}_abstract")
 
             # for wiiu abstract lib
             for wiiuName in wiiuAbstract:

@@ -7,8 +7,6 @@ Path.default_prepension.set(Path.cwd())
 import TextureLibs.Internal as Internal
 import TextureLibs.Global as Global
 import os
-from CodeLibs.Path import Path
-from builtins import type as typeof
 
 selections = {
     "options": [

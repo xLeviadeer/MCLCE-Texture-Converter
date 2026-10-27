@@ -1,3 +1,6 @@
+from xLPyBasics import Dependencies
+Dependencies.enforce_proj()
+
 from TextureLibs.EntryPoint import EntryPoint
 from CodeLibs import Logger as log
 
