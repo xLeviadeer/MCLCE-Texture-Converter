@@ -1,6 +1,5 @@
 from xLPyBasics.JsonAPI import JsonHandler
 from xLPyBasics.PathAPI import Path, OMIT
-from CodeLibs.Path import Path as Pather
 
 from builtins import type as typeof
 from CodeLibs import Logger as log
@@ -61,7 +60,7 @@ def patchForVersion(path, type, wiiuName, doCustomProcessing:bool=True): # does 
     versionPatches = None
     try:
         versionPatches = JsonHandler.read_for(
-            Path.cwdp() / "linking_libraries" / f"version_patches_{Global.inputGame}", 
+            Path(Global.getMainWorkingLoc(), "linking_libraries", f"version_patches_{Global.inputGame}"), 
             ["versions", Global.inputVersion, type]
         )
     except:
@@ -91,12 +90,11 @@ def patchForVersion(path, type, wiiuName, doCustomProcessing:bool=True): # does 
         # find prepending path section
         abstractKeyword = "_abstract"
         typeNoAbstract = ut.wiiuType(type if (not type.endswith(abstractKeyword)) else type[:-len(abstractKeyword)])
-        variablePath = Pather(
+        variablePath = Path(
             Global.inputPath, 
-            typeNoAbstract if (typeNoAbstract != "misc") else None, 
-            patchName,
-            isRootDirectory=True
-        ).getPath()
+            typeNoAbstract if (typeNoAbstract != "misc") else OMIT, 
+            patchName
+        ).get()
         print(f"found version patch for {wiiuName}", log.PATCHFUNCTION)
     # always return
     return variablePath
@@ -206,7 +204,7 @@ def readLayerLib(wiiuType:str, layerVersion:str, isAbstract:bool, extendingName:
     # try to read the removal layer (sheet)
     try:
         lib = JsonHandler.read_for(
-            Path.cwdp() / "linking_libraries", f"layer_{layerVersion}",
+            Path(Global.getMainWorkingLoc(), "linking_libraries", f"layer_{layerVersion}"),
             f"{wiiuType}{"_abstract" if (isAbstract == True) else ""}_{extendingName}"
         )
 
@@ -245,7 +243,7 @@ def readWiiuLibFor(type, travel):
             try:
                 # extends the wiiu lib should never be read not the wiiu lib
                 self.wiiuLib = JsonHandler.read_for(
-                    Path.cwdp() / "linking_libraries" / f"wiiu_{type}",
+                    Path(Global.getMainWorkingLoc(), "linking_libraries", f"wiiu_{type}"),
                     travel
                 )
             except Exception as err:
@@ -371,7 +369,7 @@ def readLinkLibFor(game, travel):
     content = False
     try:
         content = JsonHandler.read_for(
-            Path.cwdp() / "linking_libraries" / f"base_{game}",
+            Path(Global.getMainWorkingLoc(), "linking_libraries", f"base_{game}"),
             travel
         )
     except Exception as e:
@@ -466,7 +464,7 @@ def readMulticolorGrayscale(wiiuName, type, assign, names, namePath, whitePath, 
 
     try: # try to read the white image first and use that
         print("------ White ------") if doPrint == True else None 
-        finalImage = readImageSingular(wiiuName, Pather(whitePath).getPath(withFirstSlash=False), type, expectedSize, doPrint=doPrint)
+        finalImage = readImageSingular(wiiuName, Path(whitePath), type, expectedSize, doPrint=doPrint)
     except notFoundException:
         print("------ Colors ------") if doPrint == True else None
         # run each shulker in terms of priority until one is found that can be used
@@ -476,7 +474,7 @@ def readMulticolorGrayscale(wiiuName, type, assign, names, namePath, whitePath, 
         foundNotExpectedOnly = False
         for name in names[::-1]: # in reverse order
             try:
-                finalImage = readImageSingular(wiiuName, Pather(f"{namePath}{name}").getPath(withFirstSlash=False), type, expectedSize, doPrint=doPrint)
+                finalImage = readImageSingular(wiiuName, Path(f"{namePath}{name}"), type, expectedSize, doPrint=doPrint)
                 noneFound = False
                 foundNotExpectedOnly = False
                 break
@@ -503,10 +501,10 @@ def readWiiuImage(inWiiuAbstract, name, doResize=True):
         case True: 
             if (Global.getLayerVersion() == "1.14"): addition = "ps4_abstract"
             else: addition = "wiiu_abstract"
-        case False: addition = None # exists just so what happens is obvious
+        case False: addition = OMIT
         case _:
             addition = inWiiuAbstract
-    image = Image.open(Pather(Global.getMainWorkingLoc(), "base_textures", addition, name).getPath(withFirstSlash=False))
+    image = Image.open(Path(Global.getMainWorkingLoc(), "base_textures", addition, name).get(do_slash_first=False))
     
     # multiplier physics
     if (doResize == True):
