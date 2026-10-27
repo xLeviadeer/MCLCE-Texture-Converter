@@ -1,8 +1,8 @@
+from xLPyBasics.PathAPI import Path
+
 from CustomProcessing import Custom
 import TextureLibs.TextureUtility as ut
-from TextureLibs.Sheet import SheetExtractor
 import TextureLibs.Read as rd
-from CodeLibs.Path import Path
 import TextureLibs.Global as Global
 
 class villager_process(Custom.Function):
@@ -48,12 +48,16 @@ class villager_process(Custom.Function):
         professionFolderName = args[7]
         doVersionPatches = args[8]
 
-        path = Path()
         # changes based on zombie/villager
-        if (self.wiiuName.startswith("zombie_")):
-            path.append(zombieFolderName)
-        else:
-            path.append(villagerFolderName)
+        is_zombie = self.wiiuName.startswith("zombie_")
+        path = Path(
+            (
+                zombieFolderName
+                if is_zombie
+                else villagerFolderName
+            ),
+            is_root=False
+        )
 
         # changes based on profession
         profession = None
@@ -65,15 +69,27 @@ class villager_process(Custom.Function):
             case "priest": profession = "cleric"
             case "smith": profession = "weaponsmith"
         
-        baseImage = rd.readImageSingular(self.wiiuName, path.getPathAppendTemp((zombieBaseTexName if (self.wiiuName.startswith("zombie")) else villagerBaseTexName)), "entity", ut.mobsize, doVersionPatches).convert("RGBA")
-        typeImage = rd.readImageSingular(self.wiiuName, path.getPathAppendTemp(biomeFolderName, (zombiePlainsBaseTexName if (self.wiiuName.startswith("zombie")) else villagerPlainsBaseTexName)), "entity", ut.mobsize, doVersionPatches).convert("RGBA")
+        baseImage = rd.readImageSingular(
+            self.wiiuName, 
+            path.tempp(zombieBaseTexName if is_zombie else villagerBaseTexName), 
+            "entity", 
+            ut.mobsize, 
+            doVersionPatches
+        ).convert("RGBA")
+        typeImage = rd.readImageSingular(
+            self.wiiuName, 
+            path.tempp(biomeFolderName, (zombiePlainsBaseTexName if is_zombie else villagerPlainsBaseTexName)), 
+            "entity", 
+            ut.mobsize, 
+            doVersionPatches
+        ).convert("RGBA")
         baseImage.alpha_composite(typeImage, (0, 0)) # paste onto base
         if (profession == None): return baseImage # early return for nitwits
         overImage = ut.blankImage(ut.mobsize)
         if (Global.inputGame == "java"): # uses the zombie\\profession
-            overImage = rd.readImageSingular(self.wiiuName, path.getPathAppendTemp(professionFolderName, profession), "entity", ut.mobsize, doVersionPatches)
+            overImage = rd.readImageSingular(self.wiiuName, path.tempp(professionFolderName, profession), "entity", ut.mobsize, doVersionPatches)
         else: # uses the villager\\profession (even for zombies)
-            overImage = rd.readImageSingular(self.wiiuName, Path(villagerFolderName, professionFolderName, profession), "entity", ut.mobsize, doVersionPatches)
+            overImage = rd.readImageSingular(self.wiiuName, Path(villagerFolderName, professionFolderName, profession, is_root=False), "entity", ut.mobsize, doVersionPatches)
         overImage = overImage.convert("RGBA")
         baseImage.alpha_composite(overImage, (0, 0)) # paste onto base
 
