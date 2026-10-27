@@ -1,9 +1,10 @@
+from xLPyBasics.PathAPI import Path
+
 from CustomProcessing import Custom
 import TextureLibs.Global as Global
 import TextureLibs.TextureUtility as ut
 import os
 import TextureLibs.Read as rd
-from CodeLibs.Path import Path
 from TextureLibs.Sheet import SheetExtractor
 
 class stack_textures(Custom.Function):
@@ -30,7 +31,7 @@ class stack_textures(Custom.Function):
         wiiuImageAsSheet = None
 
         # find the highest texture number
-        path = Path(Global.inputPath, self.type, isRootDirectory=True).getPath()
+        path = Path(Global.inputPath, self.type).get()
         if (not os.path.isdir(path)): raise rd.notFoundException # will not be able to read from the list of textures
         textureNumbers = [ # get numbers from each texture
             int(os.path.splitext(file.name)[0].replace(name, ""))
