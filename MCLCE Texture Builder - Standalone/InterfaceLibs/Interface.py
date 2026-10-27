@@ -52,23 +52,23 @@ AUTHOR: str = "xLevia"
 
 # global libs holder
 class GlobalLibs:
-    program_version: str = JsonHandler.read_for((Path.cwd(), "global", "program_version"), 0)
-    supported_versions: str = JsonHandler.read_for((Path.cwd(), "global", "supported_versions"), 0)
+    program_version: str = JsonHandler.read_for((Path.get_meipass(Path.cwd()), "global", "program_version"), 0)
+    supported_versions: str = JsonHandler.read_for((Path.get_meipass(Path.cwd()), "global", "supported_versions"), 0)
     
-    input_games = JsonHandler.read_all((Path.cwd(), "global", "input_games"))
+    input_games = JsonHandler.read_all((Path.get_meipass(Path.cwd()), "global", "input_games"))
 
-    input_versions_bedrock = JsonHandler.read_all((Path.cwd(), "global", "input_versions_bedrock"))
+    input_versions_bedrock = JsonHandler.read_all((Path.get_meipass(Path.cwd()), "global", "input_versions_bedrock"))
     input_versions_bedrock_plus = [f"{text}+" for text in input_versions_bedrock]
-    input_versions_java = JsonHandler.read_all((Path.cwd(), "global", "input_versions_java"))
+    input_versions_java = JsonHandler.read_all((Path.get_meipass(Path.cwd()), "global", "input_versions_java"))
     input_versions_java_plus = [f"{text}+" for text in input_versions_java]
 
-    output_structures_nintendo_switch = JsonHandler.read_all((Path.cwd(), "global", "output_structures_nintendo_switch"))
-    output_structures_ps3 = JsonHandler.read_all((Path.cwd(), "global", "output_structures_ps3"))
-    output_structures_ps4 = JsonHandler.read_all((Path.cwd(), "global", "output_structures_ps4"))
-    output_structures_psV = JsonHandler.read_all((Path.cwd(), "global", "output_structures_psV"))
-    output_structures_wiiu = JsonHandler.read_all((Path.cwd(), "global", "output_structures_wiiu"))
-    output_structures_xbox_one = JsonHandler.read_all((Path.cwd(), "global", "output_structures_xbox_one"))
-    output_structures_xbox360 = JsonHandler.read_all((Path.cwd(), "global", "output_structures_xbox360"))
+    output_structures_nintendo_switch = JsonHandler.read_all((Path.get_meipass(Path.cwd()), "global", "output_structures_nintendo_switch"))
+    output_structures_ps3 = JsonHandler.read_all((Path.get_meipass(Path.cwd()), "global", "output_structures_ps3"))
+    output_structures_ps4 = JsonHandler.read_all((Path.get_meipass(Path.cwd()), "global", "output_structures_ps4"))
+    output_structures_psV = JsonHandler.read_all((Path.get_meipass(Path.cwd()), "global", "output_structures_psV"))
+    output_structures_wiiu = JsonHandler.read_all((Path.get_meipass(Path.cwd()), "global", "output_structures_wiiu"))
+    output_structures_xbox_one = JsonHandler.read_all((Path.get_meipass(Path.cwd()), "global", "output_structures_xbox_one"))
+    output_structures_xbox360 = JsonHandler.read_all((Path.get_meipass(Path.cwd()), "global", "output_structures_xbox360"))
     output_structures_all = [
         *output_structures_nintendo_switch,
         *output_structures_ps3,
@@ -79,10 +79,10 @@ class GlobalLibs:
         *output_structures_xbox360
     ]
 
-    output_drives = JsonHandler.read_all((Path.cwd(), "global", "output_drives"))
+    output_drives = JsonHandler.read_all((Path.get_meipass(Path.cwd()), "global", "output_drives"))
 
-    modes_size = JsonHandler.read_all((Path.cwd(), "global", "modes_size"))
-    modes_build = JsonHandler.read_all((Path.cwd(), "global", "modes_build"))
+    modes_size = JsonHandler.read_all((Path.get_meipass(Path.cwd()), "global", "modes_size"))
+    modes_build = JsonHandler.read_all((Path.get_meipass(Path.cwd()), "global", "modes_build"))
 
 # entry point data holder
 class EntryPointData:
@@ -177,7 +177,7 @@ class MainWindow(QWidget):
 
         self.__log_window: LogWindow = LogWindow(self)
         self.__help_window: HelpWindow = HelpWindow(self)
-        self.__logger_handler = log.LoggerHandler(Path.cwdp() / "logger")
+        self.__logger_handler = log.LoggerHandler(Path.get_meipassp(Path.cwd()) / "logger")
         
         # set main window settings
         self.setWindowTitle(f"MC LCE Texture Converter {GlobalLibs.program_version}")
@@ -1151,7 +1151,7 @@ def launch() -> None:
     styles_handler = PathHandler(Path(
         "light", 
         extension="css", 
-        prepension=Path.get_meipass(Path.cwd()))
+        prepension=Path.get_meipass(Path.get_meipassp(Path.cwd())))
     )
     styles_text = styles_handler.read()
     app.setStyleSheet(styles_text)
