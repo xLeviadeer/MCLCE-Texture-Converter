@@ -1,15 +1,16 @@
+from xLPyBasics.PathAPI import Path
+
 from CustomProcessing import Custom
 import TextureLibs.TextureUtility as ut
 import TextureLibs.Read as rd
 import TextureLibs.Global as Global
-from CodeLibs.Path import Path
 
 class bat_process(Custom.Function):
     def createImage(self, args):
         # read
         linkImage = rd.readImageSingular( # get the image based on game and vex texture
             self.wiiuName, 
-            Path("bat" if (Global.inputGame == "java") else "bat_v2"),
+            Path("bat" if (Global.inputGame == "java") else "bat_v2", is_root=False),
             "entity",
             ut.size(ut.mobside / 2),
             doVersionPatches=False
