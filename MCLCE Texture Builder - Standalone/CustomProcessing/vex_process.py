@@ -1,8 +1,9 @@
+from xLPyBasics.PathAPI import Path
+
 from CustomProcessing import Custom
 import TextureLibs.TextureUtility as ut
 import TextureLibs.Read as rd
 from TextureLibs.SizingImage import SizingImage as Image
-from CodeLibs.Path import Path
 import TextureLibs.Global as Global
 
 class vex_process(Custom.Function):
@@ -11,8 +12,9 @@ class vex_process(Custom.Function):
         linkImage = rd.readImageSingular( # get the image based on game and vex texture
             self.wiiuName, 
             (
-                (Path(self.wiiuName).getPathPrependTemp("illager")) if (Global.inputGame == "java") 
-                else (Path(self.wiiuName).getPathPrependTemp("vex"))
+                Path("illager", self.wiiuName, is_root=False)
+                if (Global.inputGame == "java") 
+                else Path("illager", self.wiiuName, is_root=False)
             ),
             "entity",
             ut.size(ut.mobside / 2),
