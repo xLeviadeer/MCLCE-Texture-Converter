@@ -1,12 +1,13 @@
+from xLPyBasics.PathAPI import Path
+
 from CustomProcessing import Custom
 import TextureLibs.TextureUtility as ut
 import TextureLibs.Read as rd
-from CodeLibs.Path import Path
 
 class wolf(Custom.Function):
     def createImage(self):
-        collarImage = rd.readImageSingular(self.wiiuName, Path("wolf", "wolf_tame").getPath(), "entity", ut.size(ut.mobside, (ut.mobside / 2)))
-        wolfImage = rd.readImageSingular(self.wiiuName, Path("wolf", "wolf").getPath(), "entity", ut.size(ut.mobside, (ut.mobside / 2)))
+        collarImage = rd.readImageSingular(self.wiiuName, Path("wolf", "wolf_tame"), "entity", ut.size(ut.mobside, (ut.mobside / 2)))
+        wolfImage = rd.readImageSingular(self.wiiuName, Path("wolf", "wolf"), "entity", ut.size(ut.mobside, (ut.mobside / 2)))
 
         # wolf tame or wolf collar
         if (self.wiiuName == "wolf_tame"):
