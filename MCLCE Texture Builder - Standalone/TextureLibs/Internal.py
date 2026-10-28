@@ -1,8 +1,12 @@
 # library of building functions for back-end libraries
-from sys import executable
+from sys import executable, exit
 
 from xLPyBasics.Dependencies import compare_versions
 from xLPyBasics.JsonAPI import JsonHandler
+from xLPyBasics.PathAPI import (
+    Path,
+    PathHandler, Search
+)
 
 from TextureLibs.SizingImage import SizingImage as Image
 import os
@@ -15,7 +19,6 @@ from TextureLibs.TextureUtility import singularSizeOnTexSheet
 import TextureLibs.TextureUtility as ut
 import TextureLibs.Read as rd
 from CustomProcessing.Custom import runFunctionFromPath
-from CodeLibs.Path import Path
 from builtins import type as typeof
 from TextureLibs.ConsoleWriter import Writer
 from TextureLibs.ConsoleWriter import WiiULocation
@@ -52,23 +55,26 @@ def moveAssets(set):
 
     # --- CMD Compile Section ---
 
-    mainFolder = "CustomProcessing"
+    MAIN_FOLDER = "CustomProcessing"
+    MAIN_PATH = Path(MAIN_FOLDER).collapsed()
 
     # set the intial command
     command = [executable, "-m", "PyInstaller", "--onedir"]
-    
-    # for every type, game, and file name
-    for type in ["External", "Abstract", "Versional", "Override"]:
-        for game in ["java", "bedrock"]:
-            currDir = [mainFolder, type, game]
-            for file in os.scandir(Path(Global.getMainWorkingLoc(), currDir, isRootDirectory=True).getPath()):
-                if (not file.name.endswith(".py")): continue # file must end with .py
-                command.extend([f"--hidden-import={".".join(currDir + [file.name])[:-3]}"]) # adds hidden import where it's a cumulative of type, game and file name with .py removed
 
-    # for every shared file name
-    for file in os.scandir(Path(Global.getMainWorkingLoc(), mainFolder, isRootDirectory=True).getPath()):
-        if (not file.name.endswith(".py")): continue # file must end with .py
-        command.extend([f"--hidden-import={mainFolder}.{file.name[:-3]}"]) # adds the file name with .py removed
+    # for every file in the main folder
+    for file in (
+        PathHandler(MAIN_PATH)
+        .read_dir(
+            Search.Settings(
+                recursion_depth=Search.MAX_RECURSION,
+                extensionȿ="py"
+            ),
+            do_iter=True
+        )
+    ): 
+        suffix = file.path.slice(len(MAIN_PATH))
+        suffix.extension = None
+        command.append(f"--hidden-import={".".join((MAIN_FOLDER, *suffix.pathlist))}") 
 
     # add qss styles & pyproject
     command.extend(
@@ -86,7 +92,6 @@ def moveAssets(set):
     command.append(f"{Global.getMainWorkingLoc()}\\{entryName}.py")
 
     # print command for testing and run
-    print(command)
     subprocess.run(command) # may need to edit drive letter depending on system
 
     # --- Copying & Deletion Section ---
@@ -325,10 +330,17 @@ def addToVersionPatches(typeSpace, key, value, majorUpdate, minorVersion=None, d
         print("---version patches do not exist, please generate version patches before using this option"); exit()
 
     # get a list of versions (from the base_textures directory)
-    versions = [string.name.replace(f"_{Global.inputGame}", "") 
-       for string 
-       in os.scandir(Path(Global.getMainWorkingLoc(), "base_textures", isRootDirectory=True).getPath()) 
-       if (string.name.endswith(f"_{Global.inputGame}"))]
+    GAME_SUFFIX = f"_{Global.inputGame}"
+    versions = [
+        string.path.last.replace(GAME_SUFFIX, "") 
+        for string in (
+            PathHandler("base_textures")
+            .read_dir(
+                Search.GlobSettings(f"*{GAME_SUFFIX}/"),
+                do_iter=True
+            )
+        )
+    ]
 
     # add into every version
     for version in versions: # for every version
@@ -549,8 +561,7 @@ def checkTextureEquality(gameInput:str, versionInput:str, typeInput:str, keyword
         - when inequalities are bypassed, it works for ALL versions. Meaning that version based changes are NOT detected for textures in the bypass. These should either be manually handled or determined by the major versions changes (like 1.14 changing villagers)
     """
 
-    path = Path(Global.getMainWorkingLoc(), "base_textures", isRootDirectory=True)
-    path.formalize()
+    path = Path("base_textures").collapsed()
 
     # function to handle reading wiiu textures either by their base_texture location or 1.14 wiiu generation location
     def readWiiuImage(game, inWiiuAbstract:bool, name:str):
@@ -558,17 +569,14 @@ def checkTextureEquality(gameInput:str, versionInput:str, typeInput:str, keyword
             return rd.readWiiuImage(inWiiuAbstract, name)
         else:
             name = f"{name}.png" if (not name.endswith(".png")) else name
-            image = Image.open(Path(Global.getMainWorkingLoc(), "equality_libraries", "1.14_wiiu", game, name).getPath(withFirstSlash=False))
+            image = Image.open(Path("equality_libraries", "1.14_wiiu", game, name).get())
             return image
 
     # function to save images to output location
     def writeImage(image:Image, game:str, version:str, type:str, name:str):
-        path = Path(Global.getMainWorkingLoc(), "equality_libraries", game, version, type, f"{name}.png", isRootDirectory=True)
-        path.formalize()
-        folderPath = path.slice(end=(path.getLength() - 1)) # gets path without name
-        if (not os.path.isdir(folderPath.getPath())): # checks if the path exists yet
-            os.makedirs(folderPath.getPath())
-        image.save(path.getPath(), "PNG")
+        path = Path("equality_libraries", game, version, type, name, extension="png").collapsed()
+        PathHandler(path.stem).make_down()
+        image.save(path.get(), "PNG")
 
     # function to check if or all
     def checkIfOrAll(value:str, checkValue:str, allValue:str="all"):
@@ -656,7 +664,7 @@ def checkTextureEquality(gameInput:str, versionInput:str, typeInput:str, keyword
             return True
 
     # inequality bypass reading
-    bypass = JsonHandler.read_all(Path("equality_libraries", "inequality_bypass").getPath())
+    bypass = JsonHandler.read_all(Path("equality_libraries", "inequality_bypass"))
 
     inequalities = {}
     # function for handling adding to inequalities
@@ -691,9 +699,17 @@ def checkTextureEquality(gameInput:str, versionInput:str, typeInput:str, keyword
         print(f"{game}")
 
         # for all version folders of the game
-        for dir in os.scandir(path.getPath()):
-            if ((not os.path.isdir(path.getPathAppendTemp(dir.name))) or (not dir.name.endswith(game))): continue # must end with the current game name and be directory to continue
-            version = _getVersionFromFolderName(dir.name)
+        for dir in (
+            PathHandler(path)
+            .read_dir(
+                Search.RegexSettings(
+                    include=Search.Include.AllDirectories,
+                    regex=f"{game}$" # ends with game
+                ),
+                do_iter=True
+            )
+        ):
+            version = _getVersionFromFolderName(dir.path.last)
             if (not checkIfOrAll(versionInput, version)): continue
             Global.inputVersion = version # temp sets version for this run
             if (doUseBaseTextures == False) and (ut.checkVersion(13, 2, direction=False)): continue # skips versions 1.13.2 or earlier if the base textures aren't being used
@@ -724,7 +740,7 @@ def checkTextureEquality(gameInput:str, versionInput:str, typeInput:str, keyword
                     wiiuName = f"wiiu_{wiiuType}"
                     if (checkIfOrAll(keyword, wiiuName)): # checks for keyword match
                         wiiuImage = readWiiuImage(game, False, wiiuName)
-                        Global.inputPath = path.getPathAppendTemp(f"{version}_{game}") # needs to be set so that override can read
+                        Global.inputGame = path.appended(f"{version}_{game}") # needs to be set so that override can read
                         linkImage = runFunctionFromPath("override", wiiuOverride, "particles", type, wiiuImage)
                         if (linkImage != False): # only if an image was found
                             doSheetProcessing = False # skips sheet processing
@@ -766,9 +782,8 @@ def checkTextureEquality(gameInput:str, versionInput:str, typeInput:str, keyword
                             if (linkName == True) or (linkName == False): cont(); continue # skip if link arr is a boolean
 
                             # read (and version patch if needed) linkImage
-                            patchPath = path.copy()
-                            patchPath.append(dir.name, (type if (wiiuType != Global.misc) else None), linkName)
-                            patchPath = rd.patchForVersion(patchPath.getPath(), type, wiiuName, doCustomProcessing=False) # turns into a string here
+                            patchPath = path.appended(dir.path.last, (type if (wiiuType != Global.misc) else None), linkName).get()
+                            patchPath = rd.patchForVersion(patchPath, type, wiiuName, doCustomProcessing=False) # turns into a string here
                             if (patchPath == None): cont(); continue # if the path uses custom processing
                             try:
                                 linkImage = rd.getImage(patchPath)
@@ -812,11 +827,10 @@ def checkTextureEquality(gameInput:str, versionInput:str, typeInput:str, keyword
                             wiiuFileName = ut.getWiiuNameFromAbstract(wiiuAbstract[wiiuName][2])
 
                             # read images (and version patch if needed)
-                            wiiuImage = readWiiuImage(game, True, Path(wiiuType, wiiuFileName).getPath(withFirstSlash=False))
+                            wiiuImage = readWiiuImage(game, True, Path(wiiuType, wiiuFileName).get())
 
-                            patchPath = path.copy()
-                            patchPath.append(dir.name, (type if (wiiuType != Global.misc) else None), linkName)
-                            patchPath = rd.patchForVersion(patchPath.getPath(), f"{type}_abstract", wiiuName, doCustomProcessing=False) # turns into a string here
+                            patchPath = path.appended(dir.path.last, (type if (wiiuType != Global.misc) else None), linkName).get()
+                            patchPath = rd.patchForVersion(patchPath, f"{type}_abstract", wiiuName, doCustomProcessing=False) # turns into a string here
                             if (patchPath == None): cont(); continue # if the path uses custom processing
                             try:
                                 linkImage = rd.getImage(patchPath)
@@ -868,7 +882,7 @@ def checkTextureEquality(gameInput:str, versionInput:str, typeInput:str, keyword
 
     # save the inequalities list to a file
     if (doGeneration == True): return # dont run if generating images
-    JsonHandler.write_all(Path("equality_libraries", "inequalities").getPath(), inequalities)
+    JsonHandler.write_all(Path("equality_libraries", "inequalities"), inequalities)
 
 # generates the MT Locs
 def generateMTLocs():
