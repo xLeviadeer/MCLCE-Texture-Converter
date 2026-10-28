@@ -1,8 +1,8 @@
+from xLPyBasics.PathAPI import Path
+
 from CustomProcessing import Custom
 import TextureLibs.TextureUtility as ut
-from TextureLibs.Sheet import SheetExtractor
 import TextureLibs.Read as rd
-from CodeLibs.Path import Path
 
 class bed(Custom.Function):
     def createImage(self):
@@ -21,4 +21,4 @@ class bed(Custom.Function):
             "black", "gray", "silver", "blue", "brown", "cyan", "green", "orange", "purple", "magenta", "red", "undyed", "light_blue" "lime", "pink", "yellow"
         ]
 
-        return rd.readMulticolorGrayscale(self.wiiuName, "entity", assignBedParts, nums, Path("bed").getPath(withLastSlash=True), Path("bed", "white").getPath(), ut.mobsize)
+        return rd.readMulticolorGrayscale(self.wiiuName, "entity", assignBedParts, nums, Path("bed"), Path("bed", "white"), ut.mobsize)
