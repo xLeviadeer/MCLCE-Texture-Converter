@@ -17,8 +17,7 @@ from PySide6.QtGui import (
     QCursor,
     QDesktopServices
 )
-
-from CodeLibs.Path import Path
+from xLPyBasics.PathAPI import Path, Pathable, PathHandler
 
 # ———STYLE SETTER———
 
@@ -153,17 +152,10 @@ def show_tooltip(owner: QWidget, text: str, ms: int) -> None:
 
 # ———OPEN TO———
 
-def open_in_explorer(path_or_str: str|Path):
-    # convert to path if str
-    path = path_or_str
-    if isinstance(path_or_str, str): path = Path(path_or_str, isRootDirectory=True)
-    path.formalize()
-
-    # remove last (| file_name) if it's a file
-    if (os.path.isfile(path.getPath())): path.removeAt(len(path) - 1)
-
-    # open to path 
-    QDesktopServices.openUrl(QUrl.fromLocalFile(path.getPath()))
+def open_in_explorer(pathable: Pathable):
+    path = Path.create(pathable) # normalize
+    if PathHandler(path).is_file: path.remove_at(-1) # remove last (| file_name) if it's a file
+    QDesktopServices.openUrl(QUrl.fromLocalFile(path.get())) # open to path 
 
 # ———INFORMATION BOX———
 
