@@ -514,8 +514,12 @@ def readMulticolorGrayscale(
     finalImage = assign(finalImage, (not whiteFound)) # enhance brightness if white wasn't found
     return finalImage
 
-def readWiiuImage(inWiiuAbstract, name, doResize=True):
-    name = f"{name}.png" if (not name.endswith(".png")) else name
+def readWiiuImage(
+    inWiiuAbstract:bool, 
+    namePathable:Pathable, 
+    doResize:bool=True
+) -> Image:
+    name = Path.create(namePathable, extension="png")
     addition = None
     match (inWiiuAbstract):
         case True: 
@@ -524,7 +528,7 @@ def readWiiuImage(inWiiuAbstract, name, doResize=True):
         case False: addition = OMIT
         case _:
             addition = inWiiuAbstract
-    image = Image.open(Path(Global.getMainWorkingLoc(), "base_textures", addition, name).get(do_slash_first=False))
+    image = Image.open(Path(Global.getMainWorkingLoc(), "base_textures", addition, name.pathlist).get(do_slash_first=False))
     
     # multiplier physics
     if (doResize == True):

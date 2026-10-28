@@ -120,7 +120,7 @@ class weather(Custom.Function):
     
     def findPositionsFromSampleImage(self):
         # read image (not a wiiu texture, lol, but this works)
-        image = rd.readWiiuImage(inWiiuAbstract=False, name="drop_samples", doResize=False)
+        image = rd.readWiiuImage(inWiiuAbstract=False, namePathable="drop_samples", doResize=False)
         
         # for every pixel in the image, determine if the pixel is black (only will ever react to true black pixels)
         positions = []
