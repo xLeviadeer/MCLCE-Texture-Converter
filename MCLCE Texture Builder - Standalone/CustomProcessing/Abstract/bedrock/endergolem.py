@@ -1,8 +1,8 @@
+from xLPyBasics.PathAPI import Path
+
 from CustomProcessing import Custom
 import TextureLibs.TextureUtility as ut
-from TextureLibs.Sheet import SheetExtractor
 import TextureLibs.Read as rd
-from CodeLibs.Path import Path
 
 class endergolem(Custom.Function):
     def createImage(self):
@@ -15,5 +15,5 @@ class endergolem(Custom.Function):
             "black", "gray", "silver", "blue", "brown", "cyan", "green", "orange", "purple", "magenta", "red", "undyed", "light_blue" "lime", "pink", "yellow"
         ]
         
-        return rd.readMulticolorGrayscale(self.wiiuName, "entity", assignFaceAndBody, nums, Path("shulker", "shulker_").getPath(), Path("shulker", "shulker_white").getPath(), ut.mobsize)
+        return rd.readMulticolorGrayscale(self.wiiuName, "entity", assignFaceAndBody, nums, Path("shulker", "shulker_"), Path("shulker", "shulker_white"), ut.mobsize)
             
