@@ -1,8 +1,9 @@
+from xLPyBasics.PathAPI import Path
+
 from CustomProcessing import Custom
 import TextureLibs.TextureUtility as ut
 import TextureLibs.Read as rd
 from TextureLibs.SizingImage import SizingImage as Image
-from CodeLibs.Path import Path
 import TextureLibs.Global as Global
 
 class drowned(Custom.Function):
@@ -14,7 +15,7 @@ class drowned(Custom.Function):
         # read reg
         regImage = Image.new("RGBA", ut.mobsize, "#ffffff00")
         try:
-            regImage = rd.readImageSingular(self.wiiuName, Path("zombie", "drowned").getPath(), self.type, ut.mobsize)
+            regImage = rd.readImageSingular(self.wiiuName, Path("zombie", "drowned"), self.type, ut.mobsize)
         except rd.notFoundException:
             countNotFound -= 1
         except rd.notx16Exception as err:
@@ -27,7 +28,7 @@ class drowned(Custom.Function):
         # read overlay
         overImage = Image.new("RGBA", ut.mobsize, "#ffffff00")
         try:
-            overImage = rd.readImageSingular(self.wiiuName, Path("zombie", "drowned_outer_layer").getPath(), self.type, ut.mobsize)
+            overImage = rd.readImageSingular(self.wiiuName, Path("zombie", "drowned_outer_layer"), self.type, ut.mobsize)
         except rd.notFoundException:
             countNotFound -= 1
         except rd.notx16Exception as err:
