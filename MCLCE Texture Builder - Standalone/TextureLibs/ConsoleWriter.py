@@ -1,16 +1,13 @@
+from xLPyBasics.PathAPI import PathHandler, Path
+from xLPyBasics import Sentinels as df
+
 import TextureLibs.Global as Global
-import os
-from CodeLibs import Logger as log
 from TextureLibs.SizingImage import SizingImage as Image
-from CodeLibs.Path import Path
-from CodeLibs.Path import testPath
 import traceback
-from builtins import type as typeof
 
 # ERRORS
 
-class SpecialStringError(Exception):
-    pass
+class SpecialStringError(Exception): pass
 
 # CLASSES
 
@@ -75,7 +72,7 @@ class _WriteLocation():
                 - main
                 - 122
                 - title
-            - addon : String <>
+            - addon : Path <>
                 - Path (class) for the extra addon path of the specific file
             - mipMapLevel : Integer <1>
                 - Handling for saving MipMaps
@@ -83,36 +80,18 @@ class _WriteLocation():
 
         # handle mipmaps
         if (mipMapLevel > 1):
-            addon.replaceAt((addon.getLength() - 1), f"{addon.getLast()}MipMapLevel{mipMapLevel}")
+            addon.last = f"{addon.last}MipMapLevel{mipMapLevel}"
 
         # pathing with addon and saveName
-        testPath(addon) # checks if addon is a path (handles exiting)
-        addon.formalize()
-        self.saveName = addon.getLast()
+        if not isinstance(addon, Path): raise TypeError(f"`addon` must be a `Path` not {type(path)}")
+        self.saveName = addon.last
 
         # finalize pathing
-        self.path = Path("content", "Common", "res")
-        section = self.translate(SpecialString("main", "122", "title").check(section))
-        self.path.append(
-            section.getPath(withFirstSlash=False), 
-            addon.getPath(withFirstSlash=False)
-            )
+        self.path = Path("content", "Common", "res", is_root=False)
+        section: Path = self.translate(SpecialString("main", "122", "title").check(section))
+        self.path.ext_end(section, addon)
 
-    def getPath(self):
-        return self.path
-    
-    def getPathNoSaveName(self):
-        self.path.formalize()
-        return self.path.slice(0, (self.path.getLength() - 1), withFirstSlash=False)
-    
-    def getPathAsPath(self):
-        """
-        Description:
-            Returns the actual Path() variable not a string
-        """
-        return self.path
-
-    def translate(self, value):
+    def translate(self, value) -> Path|df.Type.Invalid:
         match (value):
             case "main":
                 return Path()
@@ -121,13 +100,10 @@ class _WriteLocation():
             case "title":
                 return Path("TitleUpdate", "res")
             case _:
-                return "None"
-
-    def getSaveName(self):
-        return self.saveName
+                return df.Value.Invalid
 
     def __str__(self) -> str:
-        return self.path.getPath()
+        return self.path.get()
 
 class WiiULocation(_WriteLocation):
     def __init__(self, loc:str, side:str, section:str, addon:Path, *, mipMapLevel:int=1) -> None:
@@ -146,26 +122,20 @@ class WiiULocation(_WriteLocation):
                 - main
                 - 122
                 - title
-            - addon : String <>
+            - addon : Path <>
                 - Path (class) for the extra addon path of the specific file
             - mipMapLevel : Integer <1>
                 - Handling for saving MipMaps
         """
 
         super().__init__(section, addon, mipMapLevel=mipMapLevel)
-        side = self.translate(SpecialString("update", "base").check(side))
-        loc = self.translate(SpecialString("usb", "system").check(loc))
-        self.path.prepend(
-            loc.getPath(withFirstSlash=False), 
-            "usr", 
-            "title", 
-            side.getPath(withFirstSlash=False), 
-            "101d9d00"
-            )
+        side: Path = self.translate(SpecialString("update", "base").check(side))
+        loc: Path = self.translate(SpecialString("usb", "system").check(loc))
+        self.path.prepend(loc.pathlist, "usr", "title", side.pathlist, "101d9d00")
 
-    def translate(self, value):
+    def translate(self, value) -> Path|df.Type.Invalid:
         superTrans = super().translate(value)
-        if (superTrans != "None"): return superTrans
+        if not df.Check.is_invalid(superTrans): return superTrans
         match (value):
             case "update":
                 return Path("0005000e")
@@ -175,6 +145,8 @@ class WiiULocation(_WriteLocation):
                 return Path("storage_slc")
             case "system":
                 return Path("storage_mlc")
+            case _:
+                return df.Value.Invalid
 
 class ModPackLocation(_WriteLocation):
     def __init__(self, name:str, section:str, addon:Path, *, mipMapLevel:int=1) -> None:
@@ -189,7 +161,7 @@ class ModPackLocation(_WriteLocation):
                 - main
                 - 122
                 - title
-            - addon : String <>
+            - addon : Path <>
                 - Path (class) for the extra addon path of the specific file
             - mipMapLevel : Integer <1>
                 - Handling for saving MipMaps
@@ -211,7 +183,7 @@ class DebugLocation(_WriteLocation):
                 - main
                 - 122
                 - title
-            - addon : String <>
+            - addon : Path <>
                 - Path (class) for the extra addon path of the specific file
             - mipMapLevel : Integer <1>
                 - Handling for saving MipMaps
@@ -266,6 +238,7 @@ class Writer():
         """
 
         self.isDumpMode = (SpecialString("dump", "build").check(mode) == "dump")
+        if not isinstance(defaultPrepension, Path): raise TypeError(f"`defaultPrepension` must be a `Path` not {type(defaultPrepension)}")
         self.defaultPrepension = defaultPrepension
 
     def generatePath(self, location:_WriteLocation, currType:str) -> Path:
@@ -282,22 +255,17 @@ class Writer():
                 - the current wiiu type
         ---
         Returns:
-            - Path (not str), leading the correct location 
+            - Path (not str), leading to the correct location 
         """
         # builds a path 
         #   accounts for build/dump mode
-        path = None
-        testPath(self.defaultPrepension) # (handles exiting)
-        if (self.isDumpMode == False): # not dump mode, merge both paths
-            location.getPath().merge(self.defaultPrepension)
-            # set path
-            path = location.getPathAsPath()
-        else: # is dump, just use prepension
-            # set path
-            path = Path(self.defaultPrepension.getPath(withFirstSlash=False), currType, location.getSaveName())
-        return path
+        return (
+            self.defaultPrepension.ext_start(location.path) # combine if not dump
+            if (self.isDumpMode == False)
+            else self.defaultPrepension.appended(currType, location.saveName) # append basic type details if dump
+        )
 
-    def writeImage(self, image:Image, location:_WriteLocation, currType:str, doDelete:bool=False):
+    def writeImage(self, image:Image, location:_WriteLocation, currType:str, doDelete:bool=False) -> None:
         """
         Description:
             Writes images to their specified location and handles all related errors
@@ -314,23 +282,17 @@ class Writer():
         """
 
         # generate the path
-        path = self.generatePath(location, currType)
-        # formalize path into no-name and name version
-        path.formalize()
-        pathNoName = path.slice(0, (path.getLength() - 1)).getPath(withFirstSlash=False)
-        path = f"{path.getPath(withFirstSlash=False)}.png"
-
-        # make directories to write in (if needed (not existent))
-        if (not os.path.isdir(pathNoName)): # checks if the path exists yet (if not)
-            try:
-                os.makedirs(pathNoName) # makes dirs if it doesn't exist
-            except FileNotFoundError:
-                Global.stopGen("could not write to the input path. Did you use a path that both exists and can be edited?")
+        path: Path = self.generatePath(location, currType)
+        path.extension = "png"
 
         # save or delete the actual image
-        if (doDelete == False): # save
-            image.save(path, "PNG")
-        else: # delete
-            if (os.path.exists(path)): # check if exists before removing
-                os.remove(path)
+        if (doDelete == False): 
+            # make directories to write in
+            try: PathHandler(path.stem).write_dir()
+            except FileNotFoundError: Global.stopGen("could not write to the input path. Did you use a path that both exists and can be edited?")
+
+            # save
+            image.save(path.get(), "PNG") 
+        else: 
+            PathHandler(path).remove() # delete
               

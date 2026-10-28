@@ -528,7 +528,7 @@ def readWiiuImage(
         case False: addition = OMIT
         case _:
             addition = inWiiuAbstract
-    image = Image.open(Path(Global.getMainWorkingLoc(), "base_textures", addition, name.pathlist).get(do_slash_first=False))
+    image = Image.open(Path(Global.getMainWorkingLoc(), "base_textures", addition, name.pathlist, extension="png").get())
     
     # multiplier physics
     if (doResize == True):

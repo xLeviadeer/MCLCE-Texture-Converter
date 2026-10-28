@@ -6,13 +6,13 @@
     # false will mean the old texture is used
 
 from xLPyBasics.JsonAPI import JsonHandler
-from xLPyBasics.PathAPI import Path as xLPyBasicsPath
+from xLPyBasics.PathAPI import Path
+from xLPyBasics import Sentinels as df 
 
 from CodeLibs import Logger as log
 from CodeLibs.Logger import print
 import CustomProcessing.Custom
 from TextureLibs.SizingImage import SizingImage as Image
-from builtins import type as typeof
 import os
 import shutil
 import TextureLibs.SupportedTypes as SupportedTypes
@@ -21,7 +21,6 @@ import TextureLibs.TextureUtility as ut
 import TextureLibs.Read as rd
 import TextureLibs.SizingImage as si
 from TextureLibs.ConsoleWriter import Writer, generateLocation
-from CodeLibs.Path import Path
 import CustomProcessing
 import math
 
@@ -61,11 +60,9 @@ def _deleteIfErrorsTxtExists():
 _modPackName = None
 if (Global.outputStructure == "modpack"): # only time modPackName will be used
     # gets the last bit of inputpath
-    _modPackName = Path(Global.inputPath)
-    _modPackName.formalize()
-    _modPackName = _modPackName.getLast()
-    # capitalization
-    _modPackName = list(_modPackName) # convert to list (for 'char' reassingment)
+    _modPackName: str|df.Type.Empty = Path(Global.inputPath).last
+    if df.Check.is_empty(_modPackName): raise ValueError("`_modPackName` was empty, meaning `Global.inputPath` must not have any contents")
+    _modPackName: list[str] = list(_modPackName) # convert to list (for 'char' reassingment)
     i = 0
     while i < len(_modPackName):
         if (i == 0): 
@@ -78,9 +75,9 @@ if (Global.outputStructure == "modpack"): # only time modPackName will be used
     _modPackName = str.join("", _modPackName) # convert to string
             
 writer = Writer(
-        Global.outputDump,
-        Path(Global.outputPath)
-    )
+    Global.outputDump,
+    Path(Global.outputPath)
+)
 
 # mipmap writes
 def _writeMipMaps(image, type, wiiuLoc):
@@ -234,7 +231,7 @@ def translateForAllTypes():
         if ((wiiuArr != False) and (doOverride != True)):
             # specific arr variables
             wiiuImage = rd.readWiiuImage(False, f"{Global.getLayerGame()}_{wiiuType}")
-            linkArr = JsonHandler.read_for(xLPyBasicsPath(Global.getMainWorkingLoc(), "linking_libraries", f"Base_{Global.inputGame}"), type)
+            linkArr = JsonHandler.read_for(Path(Global.getMainWorkingLoc(), "linking_libraries", f"Base_{Global.inputGame}"), type)
             currPos = [0, 0]
 
             # constructed image and height
@@ -312,7 +309,7 @@ def translateForAllTypes():
         # --- WiiU Abstract ---
         if (wiiuAbstract != False):
             # specific abstract variables
-            linkAbstract = JsonHandler.read_for(xLPyBasicsPath(Global.getMainWorkingLoc(), "linking_libraries", f"Base_{Global.inputGame}"), f"{type}_abstract")
+            linkAbstract = JsonHandler.read_for(Path(Global.getMainWorkingLoc(), "linking_libraries", f"Base_{Global.inputGame}"), f"{type}_abstract")
 
             # for wiiu abstract lib
             for wiiuName in wiiuAbstract:
@@ -323,12 +320,11 @@ def translateForAllTypes():
 
                 # dump name handling (wiiuLoc length of 4)
                 if (len(wiiuLoc) == 4): # use wiiu abstract file for custom name
-                    wiiuImage = rd.readWiiuImage(True, Path(wiiuType, wiiuLoc[3]).getPath(withFirstSlash=False))
+                    wiiuImage = rd.readWiiuImage(True, Path(wiiuType, wiiuLoc[3]))
                     if (Global.outputDump == "dump"): # write into dump pack with custom name
-                        path = Path(wiiuLoc[2])
-                        path.formalize()
-                        path.replaceAt((path.getLength() - 1), wiiuLoc[3])
-                        wiiuLoc[2] = path.getPath(withFirstSlash=False)                    
+                        path = Path(wiiuLoc[2], is_root=False)
+                        path.last = wiiuLoc[3]
+                        wiiuLoc[2] = path.get()
                 
                 # try/except for throwing readErrors
                 try: # run checks on linkLib
@@ -489,12 +485,11 @@ def generateWiiuTextures():
 
             # dump name handling (wiiuLoc length of 4)
             if isinstance(currLoc, list) and (len(currLoc) == 4): # use wiiu abstract file for custom name
-                wiiuImage = rd.readWiiuImage(True, Path(type, currLoc[3]).getPath(withFirstSlash=False))
+                wiiuImage = rd.readWiiuImage(True, Path(type, currLoc[3]))
                 if (Global.outputDump == "dump"): # write into dump pack with custom name
-                    path = Path(currLoc[2])
-                    path.formalize()
-                    path.replaceAt((path.getLength() - 1), currLoc[3])
-                    currLoc[2] = path.getPath(withFirstSlash=False)
+                    path = Path(currLoc[2], is_root=False)
+                    path.last = currLoc[3]
+                    currLoc[2] = path.get()
 
             try:
                 wiiuImage = rd.readWiiuImage(True, f"{type}\\{ut.getWiiuNameFromAbstract(currLoc[2])}")
@@ -507,6 +502,6 @@ def generateWiiuTextures():
                     wiiuImage,
                     generateLocation(type=Global.outputStructure, loc=currLoc, arg=_modPackName),
                     type
-                    )
+                )
                 Global.bar.step()
     print("build completed successfully", log.NOTE)
