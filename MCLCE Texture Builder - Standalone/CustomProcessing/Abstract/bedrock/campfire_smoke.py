@@ -1,7 +1,6 @@
 from xLPyBasics.PathAPI import Path
 
 from CustomProcessing import Custom
-from TextureLibs.Sheet import SheetExtractor
 import TextureLibs.TextureUtility as ut
 import TextureLibs.Read as rd
 

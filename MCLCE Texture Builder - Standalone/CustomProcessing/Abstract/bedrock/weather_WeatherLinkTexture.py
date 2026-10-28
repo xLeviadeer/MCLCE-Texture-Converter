@@ -1,7 +1,6 @@
 from TextureLibs.SizingImage import SizingImage as Image
 import TextureLibs.Global as Global
 import TextureLibs.TextureUtility as ut
-from TextureLibs.Sheet import SheetExtractor
 from typing import Self
 
 # custom class imports

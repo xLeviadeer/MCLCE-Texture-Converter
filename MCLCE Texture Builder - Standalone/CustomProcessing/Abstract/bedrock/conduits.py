@@ -1,6 +1,4 @@
 from CustomProcessing import Custom
-import TextureLibs.TextureUtility as ut
-from TextureLibs.Sheet import SheetExtractor
 import TextureLibs.Read as rd
 import TextureLibs.SizingImage as si 
 

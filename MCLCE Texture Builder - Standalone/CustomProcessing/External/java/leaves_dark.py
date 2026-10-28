@@ -1,7 +1,6 @@
 from CustomProcessing import Custom
 from TextureLibs.SizingImage import SizingImage as Image
 import TextureLibs.TextureUtility as ut
-from TextureLibs.Sheet import SheetExtractor
 import TextureLibs.Read as rd
 from builtins import type as typeof
 
