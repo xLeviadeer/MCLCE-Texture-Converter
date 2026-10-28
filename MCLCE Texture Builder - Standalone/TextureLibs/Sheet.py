@@ -1,20 +1,23 @@
+from xLPyBasics.PathAPI import Path
+
 from typing import Union
 from TextureLibs.SizingImage import SizingImage as Image
-from CodeLibs.Path import Path
 import TextureLibs.Global as Global
 import TextureLibs.TextureUtility as ut
 import TextureLibs.Read as rd
 
 class SheetExtractor():
-    def __init__(self, 
-                imagePathOrSize:Union[Image, Path, tuple[int, int]],
-                subImageSize:tuple,
-                wiiuName:str=None,
-                type:str=None,
-                expectedSize:tuple=None,
-                doVersionPatches:bool=True,
-                doPrint:bool=False,
-                dox16Handling:bool=True):
+    def __init__(
+        self, 
+        imagePathOrSize:Image|Path|tuple[int, int],
+        subImageSize:tuple,
+        wiiuName:str=None,
+        type:str=None,
+        expectedSize:tuple=None,
+        doVersionPatches:bool=True,
+        doPrint:bool=False,
+        dox16Handling:bool=True
+    ):
         """
         Description:
             Creates a class holding an image in sheet format which can be used to non-destructively extract sub-images from
@@ -44,7 +47,7 @@ class SheetExtractor():
         elif isinstance(imagePathOrSize, Path): # path
             if any(value is None for value in (wiiuName, type, expectedSize)): 
                 Global.stopGen("attempting to read image from path (in SheetExtrator) but required parameters have not been set for reading")
-            image = rd.readImageSingular(wiiuName, imagePathOrSize.getPath(), type, expectedSize, doVersionPatches=doVersionPatches, doPrint=doPrint, dox16Handling=dox16Handling)
+            image = rd.readImageSingular(wiiuName, imagePathOrSize, type, expectedSize, doVersionPatches=doVersionPatches, doPrint=doPrint, dox16Handling=dox16Handling)
         elif isinstance(imagePathOrSize, Image): # image
             image = imagePathOrSize
         else: 
