@@ -1,9 +1,10 @@
+from xLPyBasics.PathAPI import Path
+
 from CustomProcessing import Custom
 import TextureLibs.TextureUtility as ut
 import TextureLibs.Read as rd
 from TextureLibs.SizingImage import SizingImage as Image
 import TextureLibs.Global as Global
-from CodeLibs.Path import Path
 
 class horse_armor_leather(Custom.Function):
     def createImage(self):
@@ -12,7 +13,7 @@ class horse_armor_leather(Custom.Function):
         # reads image (notFound and notExpected is caught at a higher level)
         image = Image.new("RGBA", (64, 64), "#ffffff00")
         try:
-            image = rd.readImageSingular(self.wiiuName, Path("horse", "armor", "horse_armor_leather").getPath(), self.type, ut.mobsize)
+            image = rd.readImageSingular(self.wiiuName, Path("horse", "armor", "horse_armor_leather"), self.type, ut.mobsize)
         except rd.notx16Exception as err:
             Global.incorrectSizeErrors.append(self.wiiuName)
             image = err.getImage().resize((64, 64))
