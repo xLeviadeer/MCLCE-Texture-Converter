@@ -1,5 +1,5 @@
 from xLPyBasics.JsonAPI import JsonHandler
-from xLPyBasics.PathAPI import Path, OMIT
+from xLPyBasics.PathAPI import Path, Pathable, OMIT
 
 from builtins import type as typeof
 from CodeLibs import Logger as log
@@ -376,14 +376,22 @@ def readLinkLibFor(game, travel):
         print(f"{game}: could not read wiiu -> {travel}", log.DEBUG)
     return content
 
-def readImageSingular(wiiuName, pathExtension, type, expectedSize, doVersionPatches=True, doPrint=False, dox16Handling=True):
+def readImageSingular(
+    wiiuName, 
+    pathableExtension:Pathable, 
+    type, 
+    expectedSize, 
+    doVersionPatches:bool=True, 
+    doPrint:bool=False, 
+    dox16Handling:bool=True
+):
         """
         Description: 
             Runs modified handling over readImage()
         ---
         Arguments:
             - wiiuName : String <>
-            - pathExtension : String⋎Path <>
+            - pathExtension : Pathable <>
                 - Path that extends onto <type>
             - type : String <>
             - expectedSize : Tuple <>
@@ -403,13 +411,12 @@ def readImageSingular(wiiuName, pathExtension, type, expectedSize, doVersionPatc
                 - if errors are passed, then the entire custom-function will fail and either result in the notFound Image or the WiiU Image
         """
 
-        # normalize path to str
-        if isinstance(pathExtension, Path):
-            pathExtension = pathExtension.get(do_slash_first=False)
+        # normalize pathExtension
+        fullPath: Path = Path(Global.inputPath, type, is_root=True).concat_var(pathableExtension)
 
         # printing
         if (doPrint == True):
-            print(f"{Global.inputPath}\\{type}\\{pathExtension}<.png/.tga>", log.NOTE)
+            print(f"{fullPath}<.png/.tga>", log.NOTE)
 
         # ignores version patches
         inputName = wiiuName
@@ -419,7 +426,7 @@ def readImageSingular(wiiuName, pathExtension, type, expectedSize, doVersionPatc
         # read image and handle x16 errors
         image = ut.blankImage(si.convertTuple(expectedSize))
         try:
-            image = readImage(f"{Global.inputPath}\\{type}\\{pathExtension}", type, inputName, expectedSize[1], expectedSize[0])
+            image = readImage(fullPath.get(), type, inputName, expectedSize[1], expectedSize[0])
         # lets notFound exception pass
         except notx16Exception as err:
             if (dox16Handling == False):
@@ -429,7 +436,16 @@ def readImageSingular(wiiuName, pathExtension, type, expectedSize, doVersionPatc
         # lets notExpected exception pass
         return image
 
-def readMulticolorGrayscale(wiiuName, type, assign, names, namePath, whitePath, expectedSize, doPrint=False):
+def readMulticolorGrayscale(
+    wiiuName, 
+    type, 
+    assign, 
+    names, 
+    namePathable: Pathable, 
+    whitePathable: Pathable, 
+    expectedSize, 
+    doPrint:bool=False
+):
     """
     Description:
         Reads varients of an image with multiple colors, prioritizing white. Grayscale handling is left to the user.
@@ -449,9 +465,9 @@ def readMulticolorGrayscale(wiiuName, type, assign, names, namePath, whitePath, 
         - names : List <>
             - A list of names that can be extended to find colored textures
             - Names farther in the list have higher "prority" for use
-        - namePath : String <>
+        - namePathable : Pathable <>
             - A path to subtend names. This path already includes the input path and the type
-        - whitePath : String<>
+        - whitePathable : Pathable <>
             - A path to the white priority image. This path already includes the input path and the type
         - expectedSize : Tuple <>
             - A size to use when creating and reading images
@@ -462,9 +478,13 @@ def readMulticolorGrayscale(wiiuName, type, assign, names, namePath, whitePath, 
     finalImage = ut.blankImage(expectedSize)
     whiteFound = True # white was found
 
+    # normalize pathables
+    namePath = Path.create(namePathable)
+    whitePath = Path.create(whitePathable)
+
     try: # try to read the white image first and use that
         print("------ White ------") if doPrint == True else None 
-        finalImage = readImageSingular(wiiuName, Path(whitePath), type, expectedSize, doPrint=doPrint)
+        finalImage = readImageSingular(wiiuName, whitePath, type, expectedSize, doPrint=doPrint)
     except notFoundException:
         print("------ Colors ------") if doPrint == True else None
         # run each shulker in terms of priority until one is found that can be used
@@ -474,7 +494,7 @@ def readMulticolorGrayscale(wiiuName, type, assign, names, namePath, whitePath, 
         foundNotExpectedOnly = False
         for name in names[::-1]: # in reverse order
             try:
-                finalImage = readImageSingular(wiiuName, Path(f"{namePath}{name}"), type, expectedSize, doPrint=doPrint)
+                finalImage = readImageSingular(wiiuName, namePath.appended(name), type, expectedSize, doPrint=doPrint)
                 noneFound = False
                 foundNotExpectedOnly = False
                 break
