@@ -1,7 +1,8 @@
+from xLPyBasics.PathAPI import Path
+
 from CustomProcessing import Custom
 import TextureLibs.TextureUtility as ut
 import TextureLibs.Read as rd
-from CodeLibs.Path import Path
 
 class wither_armor(Custom.Function):
     def createImage(self):
