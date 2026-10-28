@@ -1,7 +1,8 @@
+from xLPyBasics.PathAPI import Path
+
 from CustomProcessing import Custom
 import TextureLibs.TextureUtility as ut
 import TextureLibs.Read as rd
-from CodeLibs.Path import Path
 
 class small_chests(Custom.Function):
     def createImage(self):
@@ -9,7 +10,7 @@ class small_chests(Custom.Function):
             case "enderchest": self.wiiuName = "ender"
             case "chest": self.wiiuName = "normal"
             # others stay the same
-        image = rd.readImageSingular(self.wiiuName, Path("chest", self.wiiuName).getPath(), "entity", ut.mobsize)
+        image = rd.readImageSingular(self.wiiuName, Path("chest", self.wiiuName), "entity", ut.mobsize)
         image = image.convert("RGBA")
         finalImage = image.copy()
         def swapLocationsAndRotate(imageOneBox, imageTwoBox):
