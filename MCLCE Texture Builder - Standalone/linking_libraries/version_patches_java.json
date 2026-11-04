@@ -1738,7 +1738,8 @@
                 "beacon_beam": "beacon\\beacon_beam",
                 "spectral_arrow": "projectiles\\arrow_spectral",
                 "trident": "trident\\trident",
-                "trident_riptide": "trident\\trident_riptide"
+                "trident_riptide": "trident\\trident_riptide",
+                "particlefield": "end_portal\\end_portal"
             },
             "environment_abstract": {
                 "sun": "celestial\\sun",
@@ -1759,7 +1760,8 @@
                 "cloth_2": "entity\\equipment\\humanoid_leggings\\leather",
                 "cloth_2_b": "entity\\equipment\\humanoid_leggings\\leather_overlay",
                 "turtle_1": "entity\\equipment\\humanoid\\turtle_scute",
-                "kz": true
+                "kz": true,
+                "particlefield": "entity\\end_portal\\end_portal"
             }
         }
     }
