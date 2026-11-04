@@ -1713,7 +1713,8 @@
                 "guardian_beam": "guardian\\guardian_beam",
                 "guardian_elder": "guardian\\guardian_elder",
                 "phantom": "phantom\\phantom",
-                "witch": "witch\\witch"
+                "witch": "witch\\witch",
+                "snowman": "snow_golem\\snow_golem"
             },
             "environment_abstract": {
                 "sun": "celestial\\sun",
