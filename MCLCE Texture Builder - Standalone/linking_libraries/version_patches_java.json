@@ -1735,7 +1735,8 @@
                 "cart": "minecart\\minecart",
                 "book": "enchantment\\enchanting_table_book",
                 "lead_knot": "lead_knot\\lead_knot",
-                "beacon_beam": "beacon\\beacon_beam"
+                "beacon_beam": "beacon\\beacon_beam",
+                "spectral_arrow": "projectiles\\arrow_spectral"
             },
             "environment_abstract": {
                 "sun": "celestial\\sun",
