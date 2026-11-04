@@ -1707,7 +1707,8 @@
                 "rabbit_salt": "rabbit\\rabbit_salt",
                 "rabbit_toast": "rabbit\\rabbit_toast",
                 "rabbit_white": "rabbit\\rabbit_white",
-                "rabbit_white_splotched": "rabbit\\rabbit_white_splotched"
+                "rabbit_white_splotched": "rabbit\\rabbit_white_splotched",
+                "dolphin": "dolphin\\dolphin"
             },
             "environment_abstract": {
                 "sun": "celestial\\sun",
