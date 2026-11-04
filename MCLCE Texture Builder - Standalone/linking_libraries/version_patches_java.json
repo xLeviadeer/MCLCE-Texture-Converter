@@ -1708,13 +1708,11 @@
                 "rabbit_toast": "rabbit\\rabbit_toast",
                 "rabbit_white": "rabbit\\rabbit_white",
                 "rabbit_white_splotched": "rabbit\\rabbit_white_splotched",
-                "dolphin": "dolphin\\dolphin",
                 "endermite": "endermite\\endermite",
                 "guardian": "guardian\\guardian",
                 "guardian_beam": "guardian\\guardian_beam",
                 "guardian_elder": "guardian\\guardian_elder",
-                "phantom": "phantom\\phantom",
-                "sea_turtle": "turtle\\turtle"
+                "phantom": "phantom\\phantom"
             },
             "environment_abstract": {
                 "sun": "celestial\\sun",

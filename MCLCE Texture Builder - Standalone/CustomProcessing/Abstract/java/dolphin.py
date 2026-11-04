@@ -1,3 +1,5 @@
+from xLPyBasics.PathAPI import Path
+
 from CustomProcessing import Custom
 import TextureLibs.TextureUtility as ut
 import TextureLibs.Read as rd
@@ -10,7 +12,11 @@ class dolphin(Custom.Function):
         finalImage = Image.new("RGBA", ut.mobsize, "#ffffff00")
         javaImage = Image.new("RGBA", ut.mobsize, "#ffffff00")
         try:
-            javaImage = rd.readImageSingular(self.wiiuName, "dolphin", self.type, ut.mobsize)
+            javaImage = (
+                rd.readImageSingular(self.wiiuName, Path("dolphin", "dolphin"), self.type, ut.mobsize)
+                if ut.checkVersion(26, 1, 2)
+                else rd.readImageSingular(self.wiiuName, "dolphin", self.type, ut.mobsize)
+            )
         except rd.notx16Exception as err:
             Global.incorrectSizeErrors.append(self.wiiuName)
             javaImage = err.getImage().resize(ut.mobsize)
