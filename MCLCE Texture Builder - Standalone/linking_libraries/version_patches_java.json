@@ -1727,7 +1727,8 @@
                 "cat_brown": "cat\\cat_tabby",
                 "cat_white": "cat\\cat_white",
                 "spider_eyes": "spider\\spider_eyes",
-                "fire": "blaze\\blaze"
+                "fire": "blaze\\blaze",
+                "silverfish": "silverfish\\silverfish"
             },
             "environment_abstract": {
                 "sun": "celestial\\sun",
