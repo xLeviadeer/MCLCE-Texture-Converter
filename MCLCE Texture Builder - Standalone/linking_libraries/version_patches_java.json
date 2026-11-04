@@ -1761,7 +1761,8 @@
                 "cloth_2_b": "entity\\equipment\\humanoid_leggings\\leather_overlay",
                 "turtle_1": "entity\\equipment\\humanoid\\turtle_scute",
                 "kz": true,
-                "particlefield": "entity\\end_portal\\end_portal"
+                "particlefield": "entity\\end_portal\\end_portal",
+                "beacon_beam": "entity\\beacon\\beacon_beam"
             }
         }
     }
