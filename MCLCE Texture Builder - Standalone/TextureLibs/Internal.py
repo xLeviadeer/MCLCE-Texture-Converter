@@ -489,12 +489,12 @@ def generateLinkingLibrary():
 def getTextures(path, mode):
     if (Global.inputGame == "java"):
         varPath = path + "\\.minecraft\\versions"
-        baseVersion = 13
+        # baseVersion = 13 # deprecated with the stupid minecraft version name change
 
         for file in os.scandir(varPath):
             if (not file.is_dir()): continue # if the file isn't a directory
             if (not file.name.replace(".", "").isnumeric()): continue # check if the directory only has a number
-            if (int(file.name.split(".")[1]) < baseVersion): continue # if the file isn't more or equal to the base version
+            # if (int(file.name.split(".")[1]) < baseVersion): continue # if the file isn't more or equal to the base version # deprecated with the stupid minecraft version name change
             varPathExt = varPath + "\\" + file.name + "\\" + file.name + ".jar"
             if (not os.path.isfile(varPathExt)): continue # check if the .jar file exists
             if (os.path.isdir(Global.getMainWorkingLoc() + "\\base_textures\\" + file.name + "_java")): # check if the folder already exists in base_textures
@@ -702,14 +702,14 @@ def checkTextureEquality(gameInput:str, versionInput:str, typeInput:str, keyword
         for dir in (
             PathHandler(path)
             .read_dir(
-                Search.RegexSettings(
+                Search.Settings(
                     include=Search.Include.AllDirectories,
-                    regex=f"{game}$" # ends with game
+                    filterer=lambda name: name.endswith(f"_{game}")
                 ),
                 do_iter=True
             )
         ):
-            version = _getVersionFromFolderName(dir.path.last)
+            version = _getVersionFromFolderName(dir.path.leaf())
             if (not checkIfOrAll(versionInput, version)): continue
             Global.inputVersion = version # temp sets version for this run
             if (doUseBaseTextures == False) and (ut.checkVersion(13, 2, direction=False)): continue # skips versions 1.13.2 or earlier if the base textures aren't being used
@@ -782,7 +782,7 @@ def checkTextureEquality(gameInput:str, versionInput:str, typeInput:str, keyword
                             if (linkName == True) or (linkName == False): cont(); continue # skip if link arr is a boolean
 
                             # read (and version patch if needed) linkImage
-                            patchPath = path.appended(dir.path.last, (type if (wiiuType != Global.misc) else None), linkName).get()
+                            patchPath = path.appended(dir.path.leaf(), (type if (wiiuType != Global.misc) else None), linkName).get()
                             patchPath = rd.patchForVersion(patchPath, type, wiiuName, doCustomProcessing=False) # turns into a string here
                             if (patchPath == None): cont(); continue # if the path uses custom processing
                             try:
