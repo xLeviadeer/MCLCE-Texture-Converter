@@ -1731,7 +1731,8 @@
                 "silverfish": "silverfish\\silverfish",
                 "armorstand": "armorstand\\armorstand",
                 "banner_base": "banner\\banner_base",
-                "xporb": "experience\\experience_orb"
+                "xporb": "experience\\experience_orb",
+                "cart": "minecart\\minecart"
             },
             "environment_abstract": {
                 "sun": "celestial\\sun",
