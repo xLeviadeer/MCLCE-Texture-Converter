@@ -1729,7 +1729,8 @@
                 "spider_eyes": "spider\\spider_eyes",
                 "fire": "blaze\\blaze",
                 "silverfish": "silverfish\\silverfish",
-                "armorstand": "armorstand\\armorstand"
+                "armorstand": "armorstand\\armorstand",
+                "banner_base": "banner\\banner_base"
             },
             "environment_abstract": {
                 "sun": "celestial\\sun",
