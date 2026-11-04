@@ -13,14 +13,14 @@ class cows_process(Custom.Function):
             if self.wiiuName == "mooshroom":
                 if ut.checkVersion(13, 2, direction=False): 
                     fileName = "mooshroom"
-                elif ut.checkVersion(26, 1, 2):
+                elif ut.checkVersion(26, 1):
                     fileName = "mooshroom_red"
                 else:
                     fileName = "red_mooshroom"
 
             # change cow name
             elif self.wiiuName == "cow":
-                if ut.checkVersion(26, 1, 2):
+                if ut.checkVersion(26, 1):
                     fileName = "cow_temperate"
                 elif ut.checkVersion(21, 7):
                     fileName = "temperate_cow"

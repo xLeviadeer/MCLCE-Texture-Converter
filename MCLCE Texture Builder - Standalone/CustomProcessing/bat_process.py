@@ -11,7 +11,7 @@ class bat_process(Custom.Function):
         bat_path: Path
         if Global.inputGame == "java":
             bat_path = Path("bat", is_root=False)
-            if ut.checkVersion(26, 1, 2):
+            if ut.checkVersion(26, 1):
                 bat_path.prepend("bat")
         else:
             bat_path = Path("bat_v2", is_root=False)

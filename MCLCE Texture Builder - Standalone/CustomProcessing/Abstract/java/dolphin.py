@@ -14,7 +14,7 @@ class dolphin(Custom.Function):
         try:
             javaImage = (
                 rd.readImageSingular(self.wiiuName, Path("dolphin", "dolphin"), self.type, ut.mobsize)
-                if ut.checkVersion(26, 1, 2)
+                if ut.checkVersion(26, 1)
                 else rd.readImageSingular(self.wiiuName, "dolphin", self.type, ut.mobsize)
             )
         except rd.notx16Exception as err:

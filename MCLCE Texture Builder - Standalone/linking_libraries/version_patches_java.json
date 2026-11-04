@@ -1617,7 +1617,7 @@
                 "kz": true
             }
         },
-        "1.26.1.2": {
+        "1.26.1": {
             "block": {
                 "smooth stone_side": "smooth_stone_slab_side",
                 "smooth stone_top": "smooth_stone",
