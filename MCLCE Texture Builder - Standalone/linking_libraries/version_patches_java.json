@@ -1694,7 +1694,7 @@
                 "horse_zombie": true,
                 "mule": true,
                 "chicken": "chicken\\chicken_temperate",
-                "pig": "pig\\temperate_pig",
+                "pig": "pig\\pig_temperate",
                 "llama_brown": "llama\\llama_brown",
                 "llama_creamy": "llama\\llama_creamy",
                 "llama_gray": "llama\\llama_creamy",
