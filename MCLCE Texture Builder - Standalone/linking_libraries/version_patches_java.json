@@ -1733,7 +1733,8 @@
                 "banner_base": "banner\\banner_base",
                 "xporb": "experience\\experience_orb",
                 "cart": "minecart\\minecart",
-                "book": "enchantment\\enchanting_table_book"
+                "book": "enchantment\\enchanting_table_book",
+                "lead_knot": "lead_knot\\lead_knot"
             },
             "environment_abstract": {
                 "sun": "celestial\\sun",
