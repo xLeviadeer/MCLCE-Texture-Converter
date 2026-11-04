@@ -131,11 +131,6 @@ class SizingImage():
         color: float | tuple[float, ...] | str | None = 0,
         doResize: bool = True
     ) -> Self:
-        # changes
-        if doResize == True:
-            size = convertTuple(size)
-
-        # NO CHANGE
         """
         Creates a new image with the given mode and size.
     
@@ -150,14 +145,18 @@ class SizingImage():
             color is None, the image is not initialised.
         :returns: An :py:class:`~PIL.Image.Image` object.
         """
-        
+
+        # changes
+        if doResize == True:
+            size = convertTuple(size)
+
+        # NO CHANGE
         return SizingImage(Image.new(mode, size, color))
     def open(
         fp: StrOrBytesPath | IO[bytes],
         mode: Literal["r"] = "r",
         formats: list[str] | tuple[str, ...] | None = None,
     ) -> Self:
-        # NO CHANGE
         """
         Opens and identifies the given image file.
     
@@ -186,14 +185,10 @@ class SizingImage():
             instance is used for ``fp``.
         :exception TypeError: If ``formats`` is not ``None``, a list or a tuple.
         """
+        # NO CHANGE
         
         return SizingImage(Image.open(fp, mode, formats))
     def crop(self, box: tuple[float, float, float, float] | None = None, doResize: bool = True) -> Self:
-        # changes
-        if doResize == True:
-            box = convertTuple(box)
-
-        # NO CHANGE
         """
         Returns a rectangular region from this image. The box is a
         4-tuple defining the left, upper, right, and lower pixel
@@ -206,6 +201,11 @@ class SizingImage():
         :returns: An :py:class:`~PIL.Image.Image` object.
         """
 
+        # changes
+        if doResize == True:
+            box = convertTuple(box)
+
+        # NO CHANGE
         if box is None:
             return SizingImage(self.copy())
 
@@ -226,12 +226,6 @@ class SizingImage():
         reducing_gap: float | None = None,
         doResize: bool = True
     ) -> Self:
-        # changes
-            # sampling now defaults to NEAREST
-        if doResize == True:
-            size = convertTuple(size)
-
-        # NO CHANGE
         """
         Returns a resized copy of this image.
 
@@ -263,6 +257,12 @@ class SizingImage():
         :returns: An :py:class:`~PIL.Image.Image` object.
         """
 
+        # changes
+            # sampling now defaults to NEAREST
+        if doResize == True:
+            size = convertTuple(size)
+
+        # NO CHANGE
         if resample is None:
             resample = Resampling.BICUBIC
         elif resample not in (
@@ -344,14 +344,6 @@ class SizingImage():
         mode: str = "RGBA",
         doResize: bool = True
     ) -> None:
-        # changes
-        if (doResize == True) and (box != None):
-            box = convertTuple(box)
-
-        # mode conversion
-        im = im.convert(mode)
-
-        # NO CHANGE 
         """
         Pastes another image into this image. The box argument is either
         a 2-tuple giving the upper left corner, a 4-tuple defining the
@@ -392,6 +384,14 @@ class SizingImage():
         :param mask: An optional mask image.
         """
 
+        # changes
+        if (doResize == True) and (box != None):
+            box = convertTuple(box)
+
+        # mode conversion
+        im = im.convert(mode)
+
+        # NO CHANGE 
         if isinstance(box, Image.Image) or isinstance(box, SizingImage):
             if mask is not None:
                 msg = "If using second argument as mask, third argument must be None"
@@ -445,15 +445,6 @@ class SizingImage():
         mode: str = "RGBA",
         doResize: bool = True
     ) -> None:
-        # changes
-        if doResize == True:
-            dest = convertTuple(dest)
-            source = convertTuple(source)
-
-        # mode conversion
-        im = im.convert(mode)
-
-        # NO CHANGE
         """'In-place' analog of Image.alpha_composite. Composites an image
         onto this image.
 
@@ -467,6 +458,15 @@ class SizingImage():
         Performance Note: Not currently implemented in-place in the core layer.
         """
 
+        # changes
+        if doResize == True:
+            dest = convertTuple(dest)
+            source = convertTuple(source)
+        
+        # mode conversion
+        im = im.convert(mode)
+
+        # NO CHANGE
         if not isinstance(source, (list, tuple)):
             msg = "Source must be a list or tuple"
             raise ValueError(msg)
@@ -507,7 +507,6 @@ class SizingImage():
         result = Image.alpha_composite(background, overlay) # CHANGED
         self.paste(result, box, doResize=False)
     def show(self, title: str | None = None) -> None:
-        # NO CHANGE
         """
         Displays this image. This method is mainly intended for debugging purposes.
 
@@ -529,6 +528,7 @@ class SizingImage():
 
         from PIL import ImageShow # CHANGED
 
+        # NO CHANGE
         ImageShow.show(self, title)
     def rotate(
         self,
@@ -539,7 +539,6 @@ class SizingImage():
         translate: tuple[int, int] | None = None,
         fillcolor: float | tuple[float, ...] | str | None = None,
     ) -> Self:
-        # NO CHANGE
         """
         Returns a rotated copy of this image.  This method returns a
         copy of this image, rotated the given number of degrees counter
@@ -564,6 +563,7 @@ class SizingImage():
         :param fillcolor: An optional color for area outside the rotated image.
         :returns: An :py:class:`~PIL.Image.Image` object.
         """
+        # NO CHANGE
 
         angle = angle % 360.0
 
@@ -654,7 +654,6 @@ class SizingImage():
         palette: Palette = Palette.WEB,
         colors: int = 256,
     ) -> Self:
-        # NO CHANGE
         """
         Returns a converted copy of this image. For the "P" mode, this
         method translates pixels through the palette.  If mode is
@@ -698,6 +697,7 @@ class SizingImage():
         :rtype: :py:class:`~PIL.Image.Image`
         :returns: An :py:class:`~PIL.Image.Image` object.
         """
+        # NO CHANGE
 
         self.load()
         
@@ -912,7 +912,6 @@ class SizingImage():
         """
         self.load()
         return SizingImage(self._new(self.im.copy()))
-    
     def gaussianBlur(image, radius):
         # image for generation: the sizing image is copied into a normal image so it can be processed with PIL gaussian blur algorithms
         normalImage = Image.new("RGBA", image.size)
