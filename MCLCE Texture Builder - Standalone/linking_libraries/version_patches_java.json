@@ -1736,7 +1736,9 @@
                 "book": "enchantment\\enchanting_table_book",
                 "lead_knot": "lead_knot\\lead_knot",
                 "beacon_beam": "beacon\\beacon_beam",
-                "spectral_arrow": "projectiles\\arrow_spectral"
+                "spectral_arrow": "projectiles\\arrow_spectral",
+                "trident": "trident\\trident",
+                "trident_riptide": "trident\\trident_riptide"
             },
             "environment_abstract": {
                 "sun": "celestial\\sun",
