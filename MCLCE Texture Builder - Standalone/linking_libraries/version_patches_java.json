@@ -1714,7 +1714,18 @@
                 "guardian_elder": "guardian\\guardian_elder",
                 "phantom": "phantom\\phantom",
                 "witch": "witch\\witch",
-                "snowman": "snow_golem\\snow_golem"
+                "snowman": "snow_golem\\snow_golem",
+                "cat_black": "cat\\cat_black",
+                "cat_red": "cat\\cat_red",
+                "cat_siamese": "cat\\cat_siamese",
+                "cat_allblack": "cat\\cat_all_black",
+                "cat_grey": "cat\\cat_british_shorthair",
+                "cat_calico": "cat\\cat_calico",
+                "cat_jellie": "cat\\cat_jellie",
+                "cat_persian": "cat\\cat_persian",
+                "cat_light_grey": "cat\\cat_ragdoll",
+                "cat_brown": "cat\\cat_tabby",
+                "cat_white": "cat\\cat_white"
             },
             "environment_abstract": {
                 "sun": "celestial\\sun",
