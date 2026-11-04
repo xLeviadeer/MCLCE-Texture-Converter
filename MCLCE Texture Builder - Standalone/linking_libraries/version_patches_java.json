@@ -1699,7 +1699,15 @@
                 "llama_creamy": "llama\\llama_creamy",
                 "llama_gray": "llama\\llama_creamy",
                 "llama_white": "llama\\llama_white",
-                "spit": "llama\\llama_spit"
+                "spit": "llama\\llama_spit",
+                "rabbit_black": "rabbit\\rabbit_black",
+                "rabbit_brown": "rabbit\\rabbit_brown",
+                "rabbit_caerbannog": "rabbit\\rabbit_caerbannog",
+                "rabbit_gold": "rabbit\\rabbit_gold",
+                "rabbit_salt": "rabbit\\rabbit_salt",
+                "rabbit_toast": "rabbit\\rabbit_toast",
+                "rabbit_white": "rabbit\\rabbit_white",
+                "rabbit_white_splotched": "rabbit\\rabbit_white_splotched"
             },
             "environment_abstract": {
                 "sun": "celestial\\sun",
