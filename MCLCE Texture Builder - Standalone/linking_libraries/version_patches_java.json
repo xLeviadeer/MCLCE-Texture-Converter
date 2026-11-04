@@ -1732,7 +1732,8 @@
                 "armorstand": "armorstand\\armorstand",
                 "banner_base": "banner\\banner_base",
                 "xporb": "experience\\experience_orb",
-                "cart": "minecart\\minecart"
+                "cart": "minecart\\minecart",
+                "book": "enchantment\\enchanting_table_book"
             },
             "environment_abstract": {
                 "sun": "celestial\\sun",
