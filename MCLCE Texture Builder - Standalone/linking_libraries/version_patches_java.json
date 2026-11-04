@@ -1730,7 +1730,8 @@
                 "fire": "blaze\\blaze",
                 "silverfish": "silverfish\\silverfish",
                 "armorstand": "armorstand\\armorstand",
-                "banner_base": "banner\\banner_base"
+                "banner_base": "banner\\banner_base",
+                "xporb": "experience\\experience_orb"
             },
             "environment_abstract": {
                 "sun": "celestial\\sun",
