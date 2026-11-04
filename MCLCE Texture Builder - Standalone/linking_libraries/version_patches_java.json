@@ -1725,7 +1725,8 @@
                 "cat_persian": "cat\\cat_persian",
                 "cat_light_grey": "cat\\cat_ragdoll",
                 "cat_brown": "cat\\cat_tabby",
-                "cat_white": "cat\\cat_white"
+                "cat_white": "cat\\cat_white",
+                "spider_eyes": "spider\\spider_eyes"
             },
             "environment_abstract": {
                 "sun": "celestial\\sun",
