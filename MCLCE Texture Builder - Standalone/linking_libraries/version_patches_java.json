@@ -1734,7 +1734,8 @@
                 "xporb": "experience\\experience_orb",
                 "cart": "minecart\\minecart",
                 "book": "enchantment\\enchanting_table_book",
-                "lead_knot": "lead_knot\\lead_knot"
+                "lead_knot": "lead_knot\\lead_knot",
+                "beacon_beam": "beacon\\beacon_beam"
             },
             "environment_abstract": {
                 "sun": "celestial\\sun",
