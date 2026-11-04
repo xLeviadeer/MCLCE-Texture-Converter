@@ -20,7 +20,7 @@ supportedTypes = {
 supportedVersions = {
     "java": {
         "min": [1, 13, 2],
-        "max": [1, 21, 11]
+        "max": [1, 26, 1, 2]
     },
     "bedrock": {
         "min": [1, 6, 1],
