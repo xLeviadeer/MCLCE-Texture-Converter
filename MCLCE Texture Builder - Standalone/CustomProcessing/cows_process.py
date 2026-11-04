@@ -10,24 +10,31 @@ class cows_process(Custom.Function):
         fileName = "cow"
         if (Global.inputGame == "java"):
             # change mooshroom file name 
-            if (self.wiiuName == "mooshroom"):
-                if (ut.checkVersion(13, 2, direction=False)): 
+            if self.wiiuName == "mooshroom":
+                if ut.checkVersion(13, 2, direction=False): 
                     fileName = "mooshroom"
+                elif ut.checkVersion(26, 1, 2):
+                    fileName = "mooshroom_red"
                 else:
                     fileName = "red_mooshroom"
 
-            # move face above 1.21.7
-            if (ut.checkVersion(21, 7)): 
-                doFaceMove = True
-                if (self.wiiuName == "cow"):
+            # change cow name
+            elif self.wiiuName == "cow":
+                if ut.checkVersion(26, 1, 2):
+                    fileName = "cow_temperate"
+                elif ut.checkVersion(21, 7):
                     fileName = "temperate_cow"
+
+            # move face above 1.21.7
+            if ut.checkVersion(21, 7): 
+                doFaceMove = True
         elif (Global.inputGame == "bedrock"):
             # mooshroom file name
             if (self.wiiuName == "mooshroom"):
                 fileName = "mooshroom"
 
             # move face above 1.21.70
-            if (ut.checkVersion(21, 70)):
+            if ut.checkVersion(21, 70):
                 doFaceMove = True
                 fileName = f"{fileName}_v2"
         else:
