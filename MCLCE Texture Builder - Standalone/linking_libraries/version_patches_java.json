@@ -1728,7 +1728,8 @@
                 "cat_white": "cat\\cat_white",
                 "spider_eyes": "spider\\spider_eyes",
                 "fire": "blaze\\blaze",
-                "silverfish": "silverfish\\silverfish"
+                "silverfish": "silverfish\\silverfish",
+                "armorstand": "armorstand\\armorstand"
             },
             "environment_abstract": {
                 "sun": "celestial\\sun",
