@@ -444,6 +444,7 @@ def readMulticolorGrayscale(
     namePathable: Pathable, 
     whitePathable: Pathable, 
     expectedSize, 
+    doPrepend:bool=False,
     doPrint:bool=False
 ):
     """
@@ -494,7 +495,17 @@ def readMulticolorGrayscale(
         foundNotExpectedOnly = False
         for name in names[::-1]: # in reverse order
             try:
-                finalImage = readImageSingular(wiiuName, namePath.appended(name), type, expectedSize, doPrint=doPrint)
+                finalImage = readImageSingular(
+                    wiiuName, 
+                    (
+                        namePath.prepended(name)
+                        if doPrepend
+                        else namePath.appended(name)
+                    ), 
+                    type, 
+                    expectedSize, 
+                    doPrint=doPrint
+                )
                 noneFound = False
                 foundNotExpectedOnly = False
                 break
