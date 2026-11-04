@@ -1712,7 +1712,8 @@
                 "endermite": "endermite\\endermite",
                 "guardian": "guardian\\guardian",
                 "guardian_beam": "guardian\\guardian_beam",
-                "guardian_elder": "guardian\\guardian_elder"
+                "guardian_elder": "guardian\\guardian_elder",
+                "phantom": "phantom\\phantom"
             },
             "environment_abstract": {
                 "sun": "celestial\\sun",
