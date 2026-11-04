@@ -8,13 +8,14 @@ import TextureLibs.Global as Global
 class bat_process(Custom.Function):
     def createImage(self, args):
         # read
-        linkImage = rd.readImageSingular( # get the image based on game and vex texture
-            self.wiiuName, 
-            Path("bat" if (Global.inputGame == "java") else "bat_v2", is_root=False),
-            "entity",
-            ut.size(ut.mobside / 2),
-            doVersionPatches=False
-        )
+        bat_path: Path
+        if Global.inputGame == "java":
+            bat_path = Path("bat", is_root=False)
+            if ut.checkVersion(26, 1, 2):
+                bat_path.prepend("bat")
+        else:
+            bat_path = Path("bat_v2", is_root=False)
+        linkImage = rd.readImageSingular(self.wiiuName, bat_path, "entity", ut.size(ut.mobside / 2), doVersionPatches=False)
 
         # blank wiiuImage
         wiiuImage = ut.blankImage(64)
