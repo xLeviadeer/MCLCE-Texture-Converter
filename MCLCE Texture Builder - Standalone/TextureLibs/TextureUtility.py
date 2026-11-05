@@ -48,7 +48,13 @@ def blankImage(size=singularSizeOnTexSheet, height=None, color=(0, 0, 0, 0), doR
     """
     # function will account for tuples as size, only 1 value as size, having no size, too many size provided
         # all values must at least have the right type of value provided (integers)
-    return Image.new("RGBA", ((((size,) * 2) if (not height) else (size, height))) if (typeof(size) is not tuple) else (size[:2] if (len(size) > 1) else size), color, doResize=doResize)
+    if not isinstance(size, tuple):
+        if not height: size = (size,) * 2
+        else: size = (size, height)
+    else:
+        if len(size) > 1: size = size[:2]
+        # else: size stays the same
+    return Image.new("RGBA", size, color, doResize=doResize)
 
 def size(size=singularSizeOnTexSheet, height=None):
     """
