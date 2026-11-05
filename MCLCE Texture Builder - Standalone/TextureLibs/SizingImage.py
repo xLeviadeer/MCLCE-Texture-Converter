@@ -221,7 +221,7 @@ class SizingImage:
     def resize(
         self,
         size: tuple[int, int] | list[int] | NumpyArray,
-        resample: int | None = None,
+        resample: Resampling = Resampling.NEAREST,
         box: tuple[float, float, float, float] | None = None,
         reducing_gap: float | None = None,
         doResize: bool = True
