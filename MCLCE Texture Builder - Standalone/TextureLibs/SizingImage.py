@@ -117,7 +117,7 @@ def verifyPowerOfTwo(num, variableName=None, *, overrideMinimum=16):
     return True
 
 
-class SizingImage():
+class SizingImage:
     def __init__(self, img): # constructor
         super().__init__()
         self._img=img
@@ -928,7 +928,34 @@ class SizingImage():
 
         return SizingImage(normalImage.filter(ImageFilter.GaussianBlur(radius=radius)))
 
+    def cut(
+        self: Self, 
+        box: tuple[float, float, float, float], 
+        color: tuple[int, int, int, int] = (0, 0, 0, 0),
+        doResize: bool = True
+    ) -> tuple[Self, Self]:
+        """crops a box out of the image, replacing it with color
+        
+        Returns:
+            tuple[Self, Self]: the image with the cut taken out of it, the image that was cut out
+        """
 
+        cropped = self.crop(box, doResize=doResize)
+        cutted = self.copy()
+        cutted.paste(
+            SizingImage.new(
+                "RGBA", 
+                (
+                    box[2] - box[0],
+                    box[3] - box[1]
+                ), 
+                color,
+                doResize=doResize
+            ), 
+            (box[0], box[1]),
+            doResize=doResize
+        )
+        return (cutted, cropped)
 
 
 
