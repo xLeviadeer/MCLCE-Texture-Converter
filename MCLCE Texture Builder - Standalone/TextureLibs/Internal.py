@@ -926,7 +926,7 @@ def generateMTLocs():
             print(f"found sheet: {wiiuName}")
             # list
             path = writer.generatePath(WiiULocation("system", wiiuLoc[0], wiiuLoc[1], Path(wiiuLoc[2])), type)
-            lst.append(f"{wiiuLoc[2]}: {path.getPath(withFirstSlash=False)}.png")
+            lst.append(f"{wiiuLoc[2]}: {path.get(do_slash_first=False)}.png")
             # hierarchy
             side = "Base Game" if (wiiuLoc[0] == "base") else "Update"
             section = "Main/None" if (wiiuLoc[1] == "main") else ("1_2_2" if (wiiuLoc[1] == "122") else "TitleUpdate")
@@ -940,7 +940,7 @@ def generateMTLocs():
                 print(f"found abstract: {wiiuName}")
                 # list
                 path = writer.generatePath(WiiULocation("system", location[0], location[1], Path(location[2])), type)
-                lst.append(f"{wiiuName}: {path.getPath(withFirstSlash=False)}.png")
+                lst.append(f"{wiiuName}: {path.get(do_slash_first=False)}.png")
                 # hierarchy
                 side = "Base Game" if (location[0] == "base") else "Update"
                 section = "Main/None" if (location[1] == "main") else ("1_2_2" if (location[1] == "122") else "TitleUpdate")

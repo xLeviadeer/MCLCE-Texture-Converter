@@ -11,4 +11,4 @@ class wither_armor(Custom.Function):
             path.append("wither_armor_white")
         else:
             path.append("wither_armor")
-        return rd.readImageSingular(self.wiiuName, path.getPath(), "entity", ut.mobsize)
+        return rd.readImageSingular(self.wiiuName, path.get(), "entity", ut.mobsize)
