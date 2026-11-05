@@ -14,7 +14,7 @@ class vex_process(Custom.Function):
             (
                 Path("illager", self.wiiuName, is_root=False)
                 if (Global.inputGame == "java") 
-                else Path("illager", self.wiiuName, is_root=False)
+                else Path("vex", self.wiiuName, is_root=False)
             ),
             "entity",
             ut.size(ut.mobside / 2),
