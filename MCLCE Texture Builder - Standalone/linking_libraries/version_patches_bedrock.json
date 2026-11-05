@@ -29,8 +29,7 @@
                 "farmer": true,
                 "librarian": true,
                 "priest": true,
-                "smith": true,
-                "cat_black": "cat\\black"
+                "smith": true
             }
         },
         "1.15": {
@@ -47,8 +46,7 @@
                 "librarian": true,
                 "priest": true,
                 "smith": true,
-                "banner_illager": "banner_illager",
-                "cat_black": "cat\\black"
+                "banner_illager": "banner_illager"
             }
         },
         "1.16": {
@@ -66,8 +64,7 @@
                 "priest": true,
                 "smith": true,
                 "pigzombie": true,
-                "banner_illager": "banner_illager",
-                "cat_black": "cat\\black"
+                "banner_illager": "banner_illager"
             }
         },
         "1.17": {
@@ -85,8 +82,7 @@
                 "priest": true,
                 "smith": true,
                 "pigzombie": true,
-                "banner_illager": "banner_illager",
-                "cat_black": "cat\\black"
+                "banner_illager": "banner_illager"
             }
         },
         "1.18.10": {
@@ -105,8 +101,7 @@
                 "smith": true,
                 "pigzombie": true,
                 "villager_golem": "iron_golem\\iron_golem",
-                "banner_illager": "banner_illager",
-                "cat_black": "cat\\black"
+                "banner_illager": "banner_illager"
             }
         },
         "1.19.50": {
@@ -127,8 +122,7 @@
                 "villager_golem": "iron_golem\\iron_golem",
                 "vex": true,
                 "vex_charging": true,
-                "banner_illager": "banner_illager",
-                "cat_black": "cat\\black"
+                "banner_illager": "banner_illager"
             }
         },
         "1.20.20": {
@@ -149,8 +143,7 @@
                 "villager_golem": "iron_golem\\iron_golem",
                 "vex": true,
                 "vex_charging": true,
-                "banner_illager": "banner_illager",
-                "cat_black": "cat\\black"
+                "banner_illager": "banner_illager"
             }
         },
         "1.20.50": {
@@ -172,8 +165,7 @@
                 "vex": true,
                 "vex_charging": true,
                 "banner_illager": "banner_illager",
-                "bat": true,
-                "cat_black": "cat\\black"
+                "bat": true
             }
         },
         "1.21.40": {
@@ -195,8 +187,7 @@
                 "vex": true,
                 "vex_charging": true,
                 "banner_illager": "banner_illager",
-                "bat": true,
-                "cat_black": "cat\\black"
+                "bat": true
             }
         },
         "1.21.70": {
@@ -242,8 +233,30 @@
                 "vex_charging": true,
                 "banner_illager": "banner_illager",
                 "bat": true,
-                "chicken": "chicken\\chicken",
-                "cat_black": "cat\\black"
+                "chicken": "chicken\\chicken"
+            }
+        },
+        "1.26.0.2": {
+            "entity_abstract": {
+                "zombie_villager": true,
+                "zombie_butcher": true,
+                "zombie_farmer": true,
+                "zombie_librarian": true,
+                "zombie_priest": true,
+                "zombie_smith": true,
+                "villager": true,
+                "butcher": true,
+                "farmer": true,
+                "librarian": true,
+                "priest": true,
+                "smith": true,
+                "pigzombie": true,
+                "villager_golem": "iron_golem\\iron_golem",
+                "vex": true,
+                "vex_charging": true,
+                "banner_illager": "banner_illager",
+                "bat": true,
+                "chicken": "chicken\\chicken"
             }
         }
     }
