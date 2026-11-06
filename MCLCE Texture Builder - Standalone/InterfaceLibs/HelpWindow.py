@@ -151,6 +151,7 @@ class HelpWindow(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         self.setWindowFlag(Qt.WindowType.Window)
         self.setMinimumSize(600, 600)
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
         self.__layout = QBoxLayout(QBoxLayout.Direction.TopToBottom)
         self.setLayout(self.__layout)
 

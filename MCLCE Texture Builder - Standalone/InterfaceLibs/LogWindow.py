@@ -27,6 +27,7 @@ class LogWindow(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         self.setWindowFlag(Qt.WindowType.Window)
         self.setMinimumSize(200, 400)
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
         self.__layout = QBoxLayout(QBoxLayout.Direction.TopToBottom)
         self.setLayout(self.__layout)
 
