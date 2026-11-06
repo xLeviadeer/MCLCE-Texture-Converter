@@ -1,6 +1,6 @@
 [project]
 name = "MCLCE_TB"
-version = "0.1.10"
+version = "0.1.11"
 description = "xLeviadeer Utilities libary"
 requires-python = ">=3.13"
 dependencies = [

@@ -85,6 +85,7 @@ def moveAssets(set):
     command.append(f"{Global.getMainWorkingLoc()}\\{entryName}.py")
 
     # print command for testing and run
+    print(command)
     subprocess.run(command) # may need to edit drive letter depending on system
 
     # --- Copying & Deletion Section ---
