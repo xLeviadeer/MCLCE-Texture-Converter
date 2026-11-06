@@ -72,8 +72,7 @@ class QRunner(QThread):
         except Exception as err:
             self.on_exception.emit(err)
             raise 
-        finally:
-            self.on_complete.emit()
+        self.on_complete.emit()
 
 class QLoopRunner[T](QRunner):
     on_progress = Signal(int)
