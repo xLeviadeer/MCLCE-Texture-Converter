@@ -487,7 +487,7 @@ class MainWindow(QWidget):
 
         # advanced size ⧼mode⧽
         self.__entry_data.size_mode = 16 # default selection
-        self.__entry_data.complex_processing = True # default selection
+        self.__entry_data.complex_processing = False # default selection
         advanced_size_layout = QBoxLayout(QBoxLayout.Direction.TopToBottom)
         iUt.change_margins(advanced_size_layout, all=0)
         advanced_size_layout.setSpacing(FIN_LABEL_SPACING)
@@ -975,13 +975,16 @@ class MainWindow(QWidget):
             case "x16": 
                 self.__entry_data.size_mode = 16
                 self.__entry_data.complex_processing = True
+            case "x16 simple":
+                self.__entry_data.size_mode = 16
+                self.__entry_data.complex_processing = False
             case "x32":
                 self.__entry_data.size_mode = 32
                 self.__entry_data.complex_processing = True
-            case "x32 simple processing":
+            case "x32 simple":
                 self.__entry_data.size_mode = 32
                 self.__entry_data.complex_processing = False
-            case "x64 simple processing":
+            case "x64 simple":
                 self.__entry_data.size_mode = 64
                 self.__entry_data.complex_processing = False
 
