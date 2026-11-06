@@ -1025,9 +1025,7 @@ class MainWindow(QWidget):
                 include=Search.Include.FilesAndAllDirectories,
                 recursion_depth=Search.MAX_RECURSION
             ))
-            if len(items) == 0: 
-                finalize_success()
-                return
+            if len(items) == 0: return
 
             # ⧼bar⧽ setup
             self.__finalized_bar.setRange(0, len(items))
