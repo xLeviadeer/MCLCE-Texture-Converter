@@ -46,13 +46,6 @@ def moveAssets(set):
         shutil.rmtree(builderPath)
     os.mkdir(builderPath)
 
-    # find needed version and write them
-    print("finding needed versions")
-    print(findNeededVersions("java"))
-    JsonHandler.write_all("\\global\\input_versions_java", findNeededVersions("java"))
-    JsonHandler.write_all("\\global\\input_versions_bedrock", findNeededVersions("bedrock"))
-    print("completed; wrote needed versions")
-
     # --- CMD Compile Section ---
 
     MAIN_FOLDER = "CustomProcessing"
@@ -204,29 +197,6 @@ def checkAbstractTextures(type):
         print("---all textures were found")
     else:
         print(f"---the following textures weren't found: \n{notFound}")
-
-# finds the needed versions for the frontend (versions with changes)
-def findNeededVersions(game):
-    # read version patches
-    if not (os.path.isfile(Global.getMainWorkingLoc() + "\\linking_libraries\\version_patches_" + game + ".json")):
-        Global.stopGen(f"version patches don't exist (for {game}), cannot run findNeededVersions")
-    versionPatches = JsonHandler.read_for("\\linking_libraries\\version_patches_" + game, ["versions"])
-    # sort version patches
-    versionPatches = dict(sorted(versionPatches.items(), key=lambda item: [int(x) for x in item[0].split('.')]))
-    neededVersions = [ # starts with min version
-        ".".join( # join together with .
-            [str(num) for num in SupportedTypes.supportedVersions[game]["min"]] # cast nums to string
-        )
-    ] 
-
-    previousData = None
-    # for every version
-    for version, data in versionPatches.items():
-        if (previousData == None) or (previousData != data):
-            neededVersions.append(version)
-        previousData = data
-
-    return neededVersions
 
 # generate the version patches file
     # version patches only check for changes based on the file name; use equality checks for texture based differences
