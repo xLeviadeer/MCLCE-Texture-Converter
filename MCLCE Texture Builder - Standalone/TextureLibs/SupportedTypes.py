@@ -24,6 +24,6 @@ supportedVersions = {
     },
     "bedrock": {
         "min": [1, 6, 1],
-        "max": [1, 21, 111, 1]
+        "max": [1, 26, 60, 5]
     }
 }
